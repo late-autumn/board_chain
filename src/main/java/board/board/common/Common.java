@@ -80,55 +80,55 @@ public class Common {
     return walletApi;
   }
   
-  public static String[] fileupload(int voteidx, MultipartHttpServletRequest mtfRequest, String filepath, HttpServletRequest request) {
-    HttpSession session = request.getSession();
-    List<MultipartFile> fileList = mtfRequest.getFiles("file");
-    List<Object> list = new ArrayList();
-    String path = filepath;
-    String imgsize = "";
-    String saveFile = "";
-    String imgname = "";
-    String imgoriginalname = "";
-    String imgurl = "";
-    
-    //운영
-    String domain = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort();
-    //System.out.println("domain : " + domain);
-    
-    //개발
-    //String tomcatpath = session.getServletContext().getRealPath("/");
-    
-    //System.out.println("tomcatpath : " + tomcatpath);
-
-    list.add(Integer.toString(voteidx));
-    for (MultipartFile mf : fileList) {
-        imgoriginalname = mf.getOriginalFilename(); // 원본 파일 명
-        imgsize =  Integer.toString((int)mf.getSize()); // 파일 사이즈
-        
-        //path를 도메인 패스로 잡아서 올리즈아~ 
-        imgname = System.currentTimeMillis() + imgoriginalname;
-        saveFile = path + imgname;
-        
-        //imgurl = domain+saveFile;
-        imgurl = domain+"/upload/"+imgname;
-        try {
-            mf.transferTo(new File(saveFile));
-            list.add(imgurl);
-            list.add(imgname);
-            list.add(imgoriginalname);
-            list.add(imgsize);
-        } catch (IllegalStateException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
-    String[] fileinfo = list.toArray(new String[list.size()]);
-    System.out.println("fileinfo : " + Arrays.toString(fileinfo));
-    
-    return fileinfo;
-  }
+//  public static String[] fileupload(int voteidx, MultipartHttpServletRequest mtfRequest, String filepath) {
+//
+//    List<MultipartFile> fileList = mtfRequest.getFiles("file");
+//    List<Object> list = new ArrayList();
+//    String path = filepath;
+//    String imgsize = "";
+//    String saveFile = "";
+//    String imgname = "";
+//    String imgoriginalname = "";
+//    String imgurl = "";
+//    
+//    //운영
+//
+//    //System.out.println("domain : " + domain);
+//    
+//    //개발
+//    //String tomcatpath = session.getServletContext().getRealPath("/");
+//    
+//    //System.out.println("tomcatpath : " + tomcatpath);
+//
+//    list.add(Integer.toString(voteidx));
+//    for (MultipartFile mf : fileList) {
+//        imgoriginalname = mf.getOriginalFilename(); // 원본 파일 명
+//        imgsize =  Integer.toString((int)mf.getSize()); // 파일 사이즈
+//        
+//        //path를 도메인 패스로 잡아서 올리즈아~ 
+//        imgname = System.currentTimeMillis() + imgoriginalname;
+//        saveFile = path + imgname;
+//        
+//        //imgurl = domain+saveFile;
+//        imgurl = domain+"/upload/"+imgname;
+//        try {
+//            mf.transferTo(new File(saveFile));
+//            list.add(imgurl);
+//            list.add(imgname);
+//            list.add(imgoriginalname);
+//            list.add(imgsize);
+//        } catch (IllegalStateException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
+//    }
+//    String[] fileinfo = list.toArray(new String[list.size()]);
+//    System.out.println("fileinfo : " + Arrays.toString(fileinfo));
+//    
+//    return fileinfo;
+//  }
 
 }

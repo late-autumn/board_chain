@@ -1,20 +1,52 @@
 package board.board.service;
 
-import java.util.List;
-import java.util.Optional;
+import static org.slf4j.LoggerFactory.getLogger;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import board.board.common.Common;
 import board.board.entity.BoardEntity;
 import board.board.entity.BoardFileEntity;
 import board.board.repository.JpaBoardRepository;
+import board.board.smartcontract.SmartContract;
 import board.common.FileUtils;
+import hera.api.model.ContractResult;
+import hera.api.model.ContractTxReceipt;
+import hera.client.AergoClient;
+import hera.wallet.WalletApi;
+ 
 
 @Service
 public class JpaBoardServiceImpl implements JpaBoardService{
+	
+	
+	  //@Value("${forms.sc.id}")
+	  private String SCID =  "Amh8BnU3HNr6ZRnGFhW1hFT4TWGXBxCcJLFoxCRQzudnHTsQXeaC";
+
+	  //@Value("${forms.from.encryptionkey}")
+	  private String From_encPrivateKey = "47DE1RQgpMMc6Ub3L2MeZkHKFTWNotLbnZJP9iL9BJsgqzA1Mg6cQHjXumNDJX64LzdJN8Z42";
+
+//	  @Value("${forms.from.password}")
+	  private String From_password = "password";
+	
+	SmartContract sc = new SmartContract();
+	protected final Logger logger = getLogger(getClass());
+	
 	
 	@Autowired
 	JpaBoardRepository jpaBoardRepository;
@@ -27,6 +59,8 @@ public class JpaBoardServiceImpl implements JpaBoardService{
 		return jpaBoardRepository.findAllByOrderByBoardIdxDesc();
 	}
 
+  
+	
 	@Override
 	public void saveBoard(BoardEntity board, MultipartHttpServletRequest multipartHttpServletRequest) throws Exception {
 		board.setCreatorId("admin");
@@ -62,4 +96,224 @@ public class JpaBoardServiceImpl implements JpaBoardService{
 		BoardFileEntity boardFile = jpaBoardRepository.findBoardFile(boardIdx, idx);
 		return boardFile;
 	}
+	
+	
+	////////////////////////////////////////////////////
+	
+	public int write(Map<?, ?> params) {
+	    //스마트컨트랙트 연결.
+	    // make aergo client
+	    AergoClient aergoClient = new Common().aergoclient();
+	    WalletApi walletApi = new Common()
+	        .aergoKeystore(From_encPrivateKey, From_password, aergoClient);
+
+	    //params map 데이터 가공.
+	    //map -> list -> 배열 
+	    List<Object> list = new ArrayList();
+	    Set paramKeySet = params.keySet();
+	    Iterator keyIterator = paramKeySet.iterator();
+	    logger.debug("key Iter "+keyIterator);
+	    
+	    while (keyIterator.hasNext()) {
+	      String name = (String) keyIterator.next();
+	      String values[] = (String[]) params.get(name);
+	      logger.debug("==== name ==== "+name);
+	      logger.debug("==== value "+values);
+	      for (int i = 0; i < values.length; i++) {
+	        list.add(values[i]);
+	      }
+	    }
+	    String[] strArray = list.toArray(new String[list.size()]);
+ 
+	    ContractTxReceipt contractExecute = null;
+	    try {
+	      contractExecute = sc.contractExecute(walletApi, SCID, "BoardCreate", strArray);
+	      
+	    } catch (InterruptedException e) {
+	      // TODO Auto-generated catch block
+	      e.printStackTrace();
+	    }
+
+	    aergoClient.close();
+	    
+	    return Integer.parseInt(contractExecute.getRet().toString());
+
+	  }
+
+	  public ContractResult list() {
+	    //스마트컨트랙트 연결.
+	    // make aergo client
+	    AergoClient aergoClient = new Common().aergoclient();
+	    WalletApi walletApi = new Common()
+	        .aergoKeystore(From_encPrivateKey, From_password, aergoClient);
+
+	    String args[] = {};
+	    ContractResult contractResult = null;
+	    try {
+	      //조회
+	      contractResult = sc.contractQuery(walletApi, SCID, "selectBoardList", args);
+	    } catch (InterruptedException e) {
+	      // TODO Auto-generated catch block
+	      e.printStackTrace();
+	    }
+
+	    // close the client
+	    aergoClient.close();
+
+	    return contractResult;
+
+	  }
+
+	  public ContractResult view(int voteidx) {
+	    //스마트컨트랙트 연결.
+	    // make aergo client
+	    AergoClient aergoClient = new Common().aergoclient();
+	    WalletApi walletApi = new Common()
+	        .aergoKeystore(From_encPrivateKey, From_password, aergoClient);
+
+	    String args[] = {String.valueOf(voteidx)};
+	    ContractResult contractResult = null;
+	    try {
+	      //조회
+	      contractResult = sc.contractQuery(walletApi, SCID, "selectBoardDetail", args);
+	    } catch (InterruptedException e) {
+	      // TODO Auto-generated catch block
+	      e.printStackTrace();
+	    }
+
+	    // close the client
+	    aergoClient.close();
+
+	    return contractResult;
+	  }
+
+	  public void edit(Map<?, ?> params) {
+	    //스마트컨트랙트 연결.
+	    // make aergo client
+	    AergoClient aergoClient = new Common().aergoclient();
+	    WalletApi walletApi = new Common()
+	        .aergoKeystore(From_encPrivateKey, From_password, aergoClient);
+
+	    //params map 데이터 가공.
+	    //map -> list -> 배열 
+	    List<Object> list = new ArrayList();
+	    Set paramKeySet = params.keySet();
+	    Iterator keyIterator = paramKeySet.iterator();
+	    while (keyIterator.hasNext()) {
+	      String name = (String) keyIterator.next();
+	      String values[] = (String[]) params.get(name);
+	      for (int i = 0; i < values.length; i++) {
+	        list.add(values[i]);
+	      }
+	    }
+	    String[] strArray = list.toArray(new String[list.size()]);
+ 
+	    System.out.println("strArray : " + strArray);
+	    ContractTxReceipt contractExecute = null;
+
+	    try {
+	      contractExecute = sc.contractExecute(walletApi, SCID, "AdminVoteEdit", strArray);
+	    } catch (InterruptedException e) {
+	      // TODO Auto-generated catch block
+	      e.printStackTrace();
+	    }
+
+	    aergoClient.close();
+
+	  }
+
+
+	  public void votestatusUpdate(String strDate) {
+	    //스마트컨트랙트 연결.
+	    // make aergo client
+	    AergoClient aergoClient = new Common().aergoclient();
+	    WalletApi walletApi = new Common()
+	        .aergoKeystore(From_encPrivateKey, From_password, aergoClient);
+
+	    String[] strArray = {strDate};
+ 
+
+	    ContractTxReceipt contractExecute = null;
+
+	    try {
+	      contractExecute = sc.contractExecute(walletApi, SCID, "AdminVoteStatusUpdate", strArray);
+	    } catch (InterruptedException e) {
+	      // TODO Auto-generated catch block
+	      e.printStackTrace();
+	    }
+
+	    aergoClient.close();
+
+	  }
+
+	  public ContractResult view_item(Integer voteidx) {
+	    //스마트컨트랙트 연결.
+	    // make aergo client
+	    AergoClient aergoClient = new Common().aergoclient();
+	    WalletApi walletApi = new Common()
+	        .aergoKeystore(From_encPrivateKey, From_password, aergoClient);
+
+	    String args[] = {String.valueOf(voteidx)};
+	    ContractResult contractResult = null;
+	    try {
+	      //조회
+	      contractResult = sc.contractQuery(walletApi, SCID, "AdminVoteItemDetail", args);
+	    } catch (InterruptedException e) {
+	      // TODO Auto-generated catch block
+	      e.printStackTrace();
+	    }
+
+	    // close the client
+	    aergoClient.close();
+
+	    return contractResult;
+	  }
+
+	  public ContractResult view_userdata(Integer voteidx) {
+	    //스마트컨트랙트 연결.
+	    // make aergo client
+	    AergoClient aergoClient = new Common().aergoclient();
+	    WalletApi walletApi = new Common()
+	        .aergoKeystore(From_encPrivateKey, From_password, aergoClient);
+
+	    String args[] = {String.valueOf(voteidx)};
+	    ContractResult contractResult = null;
+	    try {
+	      //조회
+	      contractResult = sc.contractQuery(walletApi, SCID, "UserDataList", args);
+	    } catch (InterruptedException e) {
+	      // TODO Auto-generated catch block
+	      e.printStackTrace();
+	    }
+
+	    // close the client
+	    aergoClient.close();
+
+	    return contractResult;
+	  }
+
+	   
+
+//	  public void write_item_images(int voteidx, MultipartHttpServletRequest mtfRequest, String filepath) {
+//	    String[] fileinfo = Common.fileupload(voteidx, mtfRequest, filepath);
+//	    
+//	    //스마트컨트랙트 연결.
+//	    // make aergo client
+//	    AergoClient aergoClient = new Common().aergoclient();
+//	    WalletApi walletApi = new Common()
+//	        .aergoKeystore(From_encPrivateKey, From_password, aergoClient);
+//
+//	    ContractTxReceipt contractExecute = null;
+//
+//	    try {
+//	      contractExecute = sc.contractExecute(walletApi, SCID, "AdminVoteCreate_Item_Images", fileinfo);
+//	    } catch (InterruptedException e) {
+//	      // TODO Auto-generated catch block
+//	      e.printStackTrace();
+//	    }
+//
+//	    aergoClient.close();
+//	  }
+	
+	
 }

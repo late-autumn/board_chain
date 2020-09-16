@@ -12,6 +12,7 @@
 	        <colgroup>
 	            <col width="15%"/>
 	            <col width="*"/>
+	            <col width="10%"/>
 	            <col width="15%"/>
 	            <col width="20%"/>
 	        </colgroup>
@@ -20,6 +21,7 @@
 	                <th scope="col">글번호</th>
 	                <th scope="col">제목</th>
 	                <th scope="col">조회수</th>
+	                <th scope="col">작성자</th>
 	                <th scope="col">작성일</th>
 	            </tr>
 	        </thead>
@@ -28,6 +30,7 @@
 	        		<td th:text="${list.boardIdx}"></td>
 	        		<td class="title"><a href="/jpa/board/" th:attrappend="href=${list.boardIdx}" th:text="${list.title}"></a></td>
 	        		<td th:text="${list.hitCnt}"></td>
+	        		<td th:text="${list.creatorId}"></td>
 	        		<td th:text="${list.createdDatetime}"></td>
 	        	</tr> 
 	        	<tr th:unless="${#lists.size(list)} > 0">
