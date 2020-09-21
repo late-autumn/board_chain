@@ -7,8 +7,11 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -36,7 +39,7 @@ public class JpaBoardServiceImpl implements JpaBoardService{
 	
 	
 	  //@Value("${forms.sc.id}")
-	  private String SCID =  "Amh8BnU3HNr6ZRnGFhW1hFT4TWGXBxCcJLFoxCRQzudnHTsQXeaC";
+	  private String SCID =  "AmhZq8y48J82HCYz8yRhPMpEeRwGt438Yd3zdSpoMSDYjwv6VG5M";
 
 	  //@Value("${forms.from.encryptionkey}")
 	  private String From_encPrivateKey = "47DE1RQgpMMc6Ub3L2MeZkHKFTWNotLbnZJP9iL9BJsgqzA1Mg6cQHjXumNDJX64LzdJN8Z42";
@@ -109,20 +112,19 @@ public class JpaBoardServiceImpl implements JpaBoardService{
 
 	    //params map 데이터 가공.
 	    //map -> list -> 배열 
-	    List<Object> list = new ArrayList();
+ 	    List<Object> list = new ArrayList();
+	    
 	    Set paramKeySet = params.keySet();
 	    Iterator keyIterator = paramKeySet.iterator();
-	    logger.debug("key Iter "+keyIterator);
 	    
 	    while (keyIterator.hasNext()) {
 	      String name = (String) keyIterator.next();
-	      String values[] = (String[]) params.get(name);
-	      logger.debug("==== name ==== "+name);
-	      logger.debug("==== value "+values);
+	      String values[] = (String[]) params.get(name); 
 	      for (int i = 0; i < values.length; i++) {
 	        list.add(values[i]);
 	      }
 	    }
+
 	    String[] strArray = list.toArray(new String[list.size()]);
  
 	    ContractTxReceipt contractExecute = null;
@@ -209,10 +211,11 @@ public class JpaBoardServiceImpl implements JpaBoardService{
 	    String[] strArray = list.toArray(new String[list.size()]);
  
 	    System.out.println("strArray : " + strArray);
+ 
 	    ContractTxReceipt contractExecute = null;
 
 	    try {
-	      contractExecute = sc.contractExecute(walletApi, SCID, "AdminVoteEdit", strArray);
+	      contractExecute = sc.contractExecute(walletApi, SCID, "BoardEdit", strArray);
 	    } catch (InterruptedException e) {
 	      // TODO Auto-generated catch block
 	      e.printStackTrace();

@@ -17,7 +17,7 @@ dependencies {
 
 	implementation 'org.springframework.boot:spring-boot-starter-aop'
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.0.0'
@@ -26,6 +26,8 @@ dependencies {
     implementation "io.aergo:heraj-transport:1.4.0"
     implementation "io.aergo:heraj-wallet:1.4.0"
     implementation "io.aergo:heraj-smart-contract:1.4.0"
+
+	implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
 
 	implementation group: 'org.bgee.log4jdbc-log4j2', name: 'log4jdbc-log4j2-jdbc4.1', version: '1.16'
 	implementation group: 'commons-io', name: 'commons-io', version: '2.4'

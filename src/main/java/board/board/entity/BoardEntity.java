@@ -13,14 +13,29 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-
+ 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+
+//@Entity
+//@Table(name="t_jpa_board")
+//@NoArgsConstructor
+//@Data
 
 @Entity
 @Table(name="t_jpa_board")
+@AllArgsConstructor
+@Builder
+@EqualsAndHashCode
 @NoArgsConstructor
 @Data
+@ToString
 public class BoardEntity {
 	
 	@Id
@@ -47,7 +62,7 @@ public class BoardEntity {
 	private LocalDateTime updatedDatetime;
 	
 	@OneToMany(fetch= FetchType.EAGER, cascade=CascadeType.ALL)
-	@JoinColumn(name="board_idx")
+	@JoinColumn(name="boardIdx")
 	private Collection<BoardFileEntity> fileList;
 	
 	

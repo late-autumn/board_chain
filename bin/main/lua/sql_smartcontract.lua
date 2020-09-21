@@ -68,6 +68,27 @@ function BoardCreate(title, contents, creatorId)
 --  return last_insert
 end
 
+
+--게시글 상세보기
+function selectBoardDetail(boardIdx)
+  local rt = {}
+  local rs = db.query("select boardIdx, title, contents, hitCnt, creatorId, created_datetime FROM t_jpa_board WHERE boardIdx = ?", boardIdx)
+  while rs:next() do
+    local col1, col2, col3, col4, col5, col6  = rs:get()
+    local item = {
+        boardIdx = col1,
+        title = col2,
+        contents = col3,
+        hitCnt= col4,
+        creatorId = col5,
+        created_datetime = col6
+    }
+    table.insert(rt, item)
+  end
+  return rt
+end
+
+
 --게시글 리스트
 function selectBoardList()
   local returnstr = ""
@@ -94,40 +115,6 @@ function selectBoardList()
   return rt
 end
 
---게시글 상세보기
-function selectBoardDetail(boardIdx)
--- db.exec("UPDATE t_jpa_board SET hitCnt=hitCnt+1 WHERE boardIdx=?", boardIdx)
-  local rt = {}
-  local rs = db.query("select boardIdx, title, contents, hitCnt, creatorId, created_datetime FROM t_jpa_board WHERE boardIdx = ?", boardIdx)
-  while rs:next() do
-    local col1, col2, col3, col4, col5, col6  = rs:get()
-
-    local item = {
-        boardIdx = col1,
-        title = col2,
-        contents = col3,
-        hitCnt= col4,
-        creatorId = col5,
-        created_datetime = col6
-    }
-    table.insert(rt, item)
-  end
-
-  return rt
-end
-
-
-
-
---게시글 수정
-function BoardEdit(boardIdx, title, contents, created_datetime)
-  db.exec("UPDATE t_jpa_board SET title=?, contents=?, created_datetime=? WHERE boardIdx=?",
-   title, contents,  system.getTimestamp(), boardIdx)
-
---db.exec("UPDATE t_jpa_board SET title=?, contents=? WHERE boardIdx = ?", title, contents, boardIdx)
-
-
-end
 
 
 
@@ -135,5 +122,4 @@ end
 
 
 
-
-abi.register(BoardCreate, selectBoardDetail, selectBoardList, BoardEdit)
+abi.register(BoardCreate, selectBoardDetail, selectBoardList)
