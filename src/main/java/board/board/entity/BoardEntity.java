@@ -55,15 +55,15 @@ public class BoardEntity {
 	private String creatorId;
 	
 	@Column(nullable=false)
-	private LocalDateTime createdDatetime = LocalDateTime.now();
+	private String createdDatetime;
 	
 	private String updaterId;
 	
-	private LocalDateTime updatedDatetime;
+	private String updatedDatetime;
 	
-	@OneToMany(fetch= FetchType.EAGER, cascade=CascadeType.ALL)
-	@JoinColumn(name="boardIdx")
-	private Collection<BoardFileEntity> fileList;
-	
+//	@OneToMany(fetch= FetchType.EAGER, cascade=CascadeType.ALL)
+//	@JoinColumn(name="boardIdx")
+//	private Collection<BoardFileEntity> fileList;
+	private String fileList;
 	
 }

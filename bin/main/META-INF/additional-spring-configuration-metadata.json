@@ -1,0 +1,42 @@
+{"properties": [
+  {
+    "name": "forms.sc.id",
+    "type": "java.lang.String",
+    "description": "A description for 'forms.sc.id'"
+  },
+  {
+    "name": "forms.encryptionkey",
+    "type": "java.lang.String",
+    "description": "A description for 'forms.encryptionkey'"
+  },
+  {
+    "name": "form.password",
+    "type": "java.lang.String",
+    "description": "A description for 'form.password'"
+  },
+  {
+    "name": "forms.from.encryptionkey",
+    "type": "java.lang.String",
+    "description": "A description for 'forms.from.encryptionkey'"
+  },
+  {
+    "name": "form.from.password",
+    "type": "java.lang.String",
+    "description": "A description for 'form.from.password'"
+  },
+  {
+    "name": "forms.form.encryptionkey",
+    "type": "java.lang.String",
+    "description": "A description for 'forms.form.encryptionkey'"
+  },
+  {
+    "name": "form.form.password",
+    "type": "java.lang.String",
+    "description": "A description for 'form.form.password'"
+  },
+  {
+    "name": "forms.form.password",
+    "type": "java.lang.String",
+    "description": "A description for 'forms.form.password'"
+  }
+]}

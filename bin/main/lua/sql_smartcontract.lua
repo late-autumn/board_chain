@@ -41,7 +41,7 @@ end
 
 
 --게시글 생성
-function BoardCreate(title, contents, creatorId)
+function createBoard(title, contents, creatorId)
 --function BoardCreate(contents, creatorId, title)
   db.exec("INSERT INTO t_jpa_board (title, contents, hitCnt, creatorId, created_datetime) VALUES('"
   .. title .. "', '".. contents .. "', '0', '".. creatorId .. "', '" .. system.getTimestamp() .. "')")
@@ -67,27 +67,6 @@ function BoardCreate(title, contents, creatorId)
 --  end
 --  return last_insert
 end
-
-
---게시글 상세보기
-function selectBoardDetail(boardIdx)
-  local rt = {}
-  local rs = db.query("select boardIdx, title, contents, hitCnt, creatorId, created_datetime FROM t_jpa_board WHERE boardIdx = ?", boardIdx)
-  while rs:next() do
-    local col1, col2, col3, col4, col5, col6  = rs:get()
-    local item = {
-        boardIdx = col1,
-        title = col2,
-        contents = col3,
-        hitCnt= col4,
-        creatorId = col5,
-        created_datetime = col6
-    }
-    table.insert(rt, item)
-  end
-  return rt
-end
-
 
 --게시글 리스트
 function selectBoardList()
@@ -116,10 +95,49 @@ function selectBoardList()
 end
 
 
+--게시글 조회수 증가
+function increaseHitCnt(boardIdx)
+  db.exec("UPDATE t_jpa_board SET hitCnt=hitCnt+1 WHERE boardIdx=?", boardIdx)
+end
+
+--게시글 상세보기
+function selectBoardDetail(boardIdx)
+  local rt = {}
+  local rs = db.query("SELECT boardIdx, title, contents, hitCnt, creatorId, created_datetime FROM t_jpa_board WHERE boardIdx = ?", boardIdx)
+
+  while rs:next() do
+    local col1, col2, col3, col4, col5, col6 = rs:get()
+    local item = {
+        boardIdx = col1,
+        title = col2,
+        contents = col3,
+        hitCnt = col4,
+        creatorId = col5,
+        created_datetime = col6
+    }
+    table.insert(rt, item)
+
+  end
+
+  return rt
+end
+
+
+--게시글 수정
+function editBoard(boardIdx, title, contents, created_datetime)
+  db.exec("UPDATE t_jpa_board SET title=?, contents=?, created_datetime=? WHERE boardIdx=?",
+   title, contents,  system.getTimestamp(), boardIdx)
+
+end
+
+--게시글 삭제
+function deleteBoard(boardIdx)
+  db.exec("DELETE FROM t_jpa_board WHERE boardIdx=?",boardIdx)
+end
 
 
 
 
 
 
-abi.register(BoardCreate, selectBoardDetail, selectBoardList)
+abi.register(createBoard, selectBoardDetail, selectBoardList, editBoard, increaseHitCnt, deleteBoard)

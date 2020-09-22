@@ -23,6 +23,9 @@ public class BoardFileEntity {
 	private int idx;
 	
 	@Column(nullable=false)
+	private int boardIdx;
+	
+	@Column(nullable=false)
 	private String originalFileName;
 	
 	@Column(nullable=false)
@@ -30,14 +33,5 @@ public class BoardFileEntity {
 	
 	@Column(nullable=false)
 	private long fileSize;
-	
-	@Column(nullable=false)
-	private String creatorId;
-	
-	@Column(nullable=false)
-	private LocalDateTime createdDatetime = LocalDateTime.now();
-	
-	private String updatorId;
-	
-	private LocalDateTime updatedDatetime;
+ 
 }

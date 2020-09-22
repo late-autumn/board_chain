@@ -41,7 +41,9 @@ public class SmartContract {
 
 
   }
-
+ 
+  
+  
   public static ContractResult contractQuery(WalletApi walletApi, String SmartContractId,
       String funcId, String[] args) throws InterruptedException {
 

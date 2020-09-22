@@ -5,8 +5,6 @@ import static org.slf4j.LoggerFactory.getLogger;
 import java.io.File;
 import java.lang.reflect.Type;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,9 +13,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
-import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,9 +25,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import board.board.entity.BoardEntity;
 import board.board.entity.BoardFileEntity;
@@ -39,7 +34,7 @@ import hera.api.model.ContractResult;
 @Controller
 public class JpaBoardController {
 
-	// Value("${file.path}")
+	@Value("${file.path}")
 	private String filepath;
 
 	protected final Logger logger = getLogger(getClass());
@@ -65,22 +60,12 @@ public class JpaBoardController {
 		mv.setViewName("board/JpaBoardList");
 		ContractResult contractResult = jpaBoardService.list();
 
-//		    JsonParser parser = new JsonParser();
-//		    Object list = parser.parse(contractResult.toString());
-//		    BoardEntity list2 = (BoardEntity) list;
-//		    
-//		    logger.info("json 변환 = "+list2);
-//		    mv.addObject("list",list2);
-
 		if (!"\"empty\"".equals(contractResult.toString())) {
 			Gson gson = new Gson();
 			Type type = new TypeToken<List<BoardEntity>>() {
 			}.getType();
 
 			List<BoardEntity> list = gson.fromJson(contractResult.toString(), type);
-			// BoardEntity list = gson.fromJson(contractResult.toString(),
-			// BoardEntity.class);
-			//logger.info("리스트" + list);
 			mv.addObject("list", list);
 		}
 		return mv;
@@ -117,8 +102,16 @@ public class JpaBoardController {
 		paramMap.put("title", request.getParameterValues("title"));
 		paramMap.put("contents", request.getParameterValues("contents"));
 		paramMap.put("creatorId", request.getParameterValues("creatorId"));
-
+		paramMap.put("fileList", mtfRequest.getFile("fileList").getOriginalFilename());
+		
+		logger.info("파일 받아오냐"+mtfRequest.getFile("fileList").toString());
+		logger.info("파일 받아오냐"+mtfRequest.getFile("fileList").getName());
+		logger.info("파일 받아오냐"+mtfRequest.getFile("fileList").getOriginalFilename());
+		
 		int boardIdx = jpaBoardService.write(paramMap);
+		 if(mtfRequest.getFile("fileList").getSize() != 0) {
+		      jpaBoardService.write_item_images(boardIdx, mtfRequest, filepath, request);
+		    }
 
 		return "redirect:/jpa/board";
 	}
@@ -141,22 +134,18 @@ public class JpaBoardController {
 		response.setContentType("text/html; charset=UTF-8");
 		mv.setViewName("board/JpaBoardDetail");
 		Map paramMap = request.getParameterMap();
-
 		// Optional<BoardEntity> optional = JpaBoardRepository.findById(boardIdx);
-
+		
+		jpaBoardService.increaseHitCnt(boardIdx);
 		ContractResult contractResult = jpaBoardService.view(boardIdx);
  
  
-		//logger.info("형태 메세지" + contractResult);
-
+/*
 		JsonParser jsonParser = new JsonParser();
 		String jsonStr = contractResult.toString();
 
 		JsonArray jsonArray = (JsonArray) jsonParser.parse(jsonStr);
-		
-		
-		
-		
+				
 		for (int i = 0; i < jsonArray.size(); i++) {
 			JsonObject object = (JsonObject) jsonArray.get(i);
 			String boardIdx2 = object.get("boardIdx").getAsString();
@@ -173,22 +162,27 @@ public class JpaBoardController {
 			mv.addObject("creatorId", creatorId);
 			mv.addObject("hitCnt", hitCnt);
 		}
- 
-
-		
- 
- 
-  /*
-		ContractResult contractResult = jpaBoardService.view(boardIdx);
+*/		
 		if (!"\"empty\"".equals(contractResult.toString())) {
-			Gson gson3 = new Gson();
-			Type type3 = new TypeToken<BoardEntity>() {
+			Gson gson = new Gson();
+			Type type = new TypeToken<List<BoardEntity>>() {
 			}.getType();
-			JsonObject bo = gson3.fromJson(contractResult.toString(), type3);
-			//List<BoardEntity> contactList_txdata = gson3.fromJson(contractResult.toString(), type3); 
-			mv.addObject("board", bo);
+			 
+			List<BoardEntity> board = gson.fromJson(contractResult.toString(), type);
+			
+			mv.addObject("board", board.get(0));
 		}
-*/
+ 
+		 //AdminVoteItemDetail
+		if (!"\"empty\"".equals(contractResult.toString())) {
+	    ContractResult contractResult_item = jpaBoardService.view_Image(boardIdx);
+	    Gson gson1 = new Gson();
+	    Type type1 = new TypeToken<List<BoardFileEntity>>() {
+	    }.getType();
+	    List<BoardFileEntity> contactList_item = gson1.fromJson(contractResult_item.toString(), type1);
+	    	mv.addObject("viewItem", contactList_item);
+		}
+  
 		return mv;
 	}
 	
@@ -219,10 +213,13 @@ public class JpaBoardController {
 
 	@RequestMapping(value = "/jpa/board/{boardIdx}", method = RequestMethod.DELETE)
 	public String deleteBoard(@PathVariable("boardIdx") int boardIdx) throws Exception {
-		jpaBoardService.deleteBoard(boardIdx);
+		jpaBoardService.delete(boardIdx);
+		//jpaBoardService.deleteBoard(boardIdx);
 		return "redirect:/jpa/board";
 	}
 
+	
+	
 	@RequestMapping(value = "/jpa/board/file", method = RequestMethod.GET)
 	public void downloadBoardFile(int boardIdx, int idx, HttpServletResponse response) throws Exception {
 		BoardFileEntity file = jpaBoardService.selectBoardFileInformation(boardIdx, idx);
