@@ -8,8 +8,7 @@ function constructor()
         contents text,
         hitCnt INTEGER,
         creatorId text,
-        createdDatetime datetime,
-        fileList text
+        createdDatetime datetime
     )]])
 
 --    updated_datetime text,
@@ -82,8 +81,27 @@ function createBoard(title, contents, creatorId, ...)
 --  return last_insert
 end
 
+
 --게시글 생성_항목이미지 저장
 function createBoardImages(boardIdx, ...)
+  local rt = {}
+  local rs = db.query("SELECT idx FROM BoardFile WHERE boardIdx = ? ORDER BY idx ASC", boardIdx)
+  local asd = ""
+  local itemIndex = 1
+
+  while rs:next() do
+    asd = rs:get()
+    local col1= rs:get()
+    db.exec("UPDATE BoardFile SET originalFileName = ?, storedFilePath = ?, fileSize = ?  WHERE boardIdx = ?",select((itemIndex*4)-2, ...),select((itemIndex*4)-1, ...),select((itemIndex*4), ...), col1)
+    itemIndex = itemIndex + 1
+  end
+  return asd
+end
+
+
+
+--게시글 생성_항목이미지 수정
+function updateBoardImages(boardIdx, ...)
   local rt = {}
   local rs = db.query("SELECT idx FROM BoardFile WHERE boardIdx = ? ORDER BY idx ASC", boardIdx)
   local asd = ""
@@ -162,12 +180,13 @@ function selectBoardDetail(boardIdx)
 end
 
 
+
 --게시글 사진
 function selectBoardFileDetail(boardIdx)
   local rt = {}
   local rs = db.query("SELECT idx, originalFileName, storedFilePath, fileSize FROM BoardFile WHERE boardIdx = ? ORDER BY idx ASC", boardIdx)
   while rs:next() do
-    local col1, col2, col3, col4, col5, col6 = rs:get()
+    local col1, col2, col3, col4 = rs:get()
     local item = {
         idx = col1,
         originalFileName = col2,
@@ -178,6 +197,24 @@ function selectBoardFileDetail(boardIdx)
   end
   return rt
 end
+
+
+--게시글 사진
+--function selectBoardFileDetail(boardIdx)
+--  local rt = {}
+  --local rs = db.query("SELECT idx, originalFileName, storedFilePath, fileSize FROM BoardFile WHERE boardIdx = ? ORDER BY idx ASC", boardIdx)
+  --while rs:next() do
+  --  local col1, col2, col3, col4, col5, col6 = rs:get()
+  --  local item = {
+  --      idx = col1,
+  --      originalFileName = col2,
+  --      storedFilePath = col3,
+  --      fileSize = col4
+  --  }
+  --  table.insert(rt, item)
+  --end
+  --return rt
+--end
 
 
 
@@ -193,6 +230,7 @@ end
 --게시글 삭제
 function deleteBoard(boardIdx)
   db.exec("DELETE FROM Board WHERE boardIdx=?",boardIdx)
+  db.exec("DELETE FROM BoardFile WHERE boardIdx=?",boardIdx)
 end
 
 

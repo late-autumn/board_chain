@@ -45,10 +45,12 @@
 			<input type="hidden" id="method" name="_method"/>
 		</form>
 		
-	 	<!-- <div class="file_list">
-			<a th:each="list : ${board.fileList}" th:href="@{/jpa/board/file(idx=${list.idx}, boardIdx=${board.boardIdx})}" th:text="|${list.originalFileName} (${#numbers.formatInteger(list.fileSize/1000, 1, 'DEFAULT')} kb)|"></a>
-		</div>   -->
-		
+<!-- 	 	 <div class="file_list">
+			<a th:each="list : ${viewFile.fileList}" th:href="@{/jpa/board/file(idx=${list.idx}, boardIdx=${board.boardIdx})}" th:text="|${list.originalFileName} (${#numbers.formatInteger(list.fileSize/1000, 1, 'DEFAULT')} kb)|"></a>
+		</div>   
+ -->		 
+			<td th:text="${viewFile.originalFileName }"></td>
+
 		<a href="#this" id="list" class="btn">목록으로</a>
 		<a href="#this" id="edit" class="btn">수정하기</a>
 		<a href="#this" id="confirm" class="btn" style="display:none">수정반영하기</a>

@@ -1,6 +1,7 @@
 package board.common;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -18,12 +19,19 @@ import board.board.entity.BoardFileEntity;
 @Component
 public class FileUtils {
 	
-	public List<BoardFileEntity> parseFileInfo(MultipartHttpServletRequest multipartHttpServletRequest) throws Exception{
-		if(ObjectUtils.isEmpty(multipartHttpServletRequest)){
+//	public List<BoardFileEntity> parseFileInfo(MultipartHttpServletRequest multipartHttpServletRequest) throws Exception{
+	public static String[] parseFileInfo(MultipartHttpServletRequest multipartHttpServletRequest) throws Exception{
+	if(ObjectUtils.isEmpty(multipartHttpServletRequest)){
 			return null;
 		}
 		
 		List<BoardFileEntity> fileList = new ArrayList<>();
+		List<Object> objList = new ArrayList<>();
+		
+	    String fileSize = "";
+	    String originalFileName = "";
+	    String storedFilePath = "";
+	    String[] fileinfo = null;
 		
 		DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyyMMdd"); 
     	ZonedDateTime current = ZonedDateTime.now();
@@ -69,9 +77,24 @@ public class FileUtils {
 					
 					file = new File(path + "/" + newFileName);
 					multipartFile.transferTo(file);
+					
+					//컨트랙트를 위한 부분 별개 저장
+					
+					originalFileName = multipartFile.getOriginalFilename(); // 원본 파일 명
+					fileSize =  Integer.toString((int)multipartFile.getSize()); // 파일 사이즈
+			        storedFilePath = path + "/" + newFileName;
+			        //path를 도메인 패스로 잡아서 올리즈아~ 
+			        
+			        
+			        objList.add(storedFilePath);
+			        objList.add(originalFileName);
+			        objList.add(fileSize);
+			        
 				}
 			}
+			fileinfo = list.toArray(new String[objList.size()]);
 		}
-		return fileList;
+		//return fileList;
+		return fileinfo;
 	}
 }

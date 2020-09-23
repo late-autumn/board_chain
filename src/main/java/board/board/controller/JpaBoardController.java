@@ -2,9 +2,7 @@ package board.board.controller;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-import java.io.File;
 import java.lang.reflect.Type;
-import java.net.URLEncoder;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +10,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +17,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -29,6 +27,7 @@ import com.google.gson.Gson;
 import board.board.entity.BoardEntity;
 import board.board.entity.BoardFileEntity;
 import board.board.service.JpaBoardServiceImpl;
+import board.common.FileUtils;
 import hera.api.model.ContractResult;
 
 @Controller
@@ -42,17 +41,7 @@ public class JpaBoardController {
 	@Autowired
 	private JpaBoardServiceImpl jpaBoardService;
 
-//	@RequestMapping(value="/jpa/board", method=RequestMethod.GET)
-//	public ModelAndView openBoardList(ModelMap model) throws Exception{
-//		ModelAndView mv = new ModelAndView("/board/jpaBoardList");
-// 		
-//		List<BoardEntity> list = jpaBoardService.selectBoardList();
-//		logger.info("list 받은:"+list);
-//		mv.addObject("list", list);
-//		
-//		return mv;
-//	}
-
+	
 	@RequestMapping(value = "/jpa/board", method = RequestMethod.GET)
 	public ModelAndView openBoardList(HttpServletResponse response, HttpServletRequest request) {
 		ModelAndView mv = new ModelAndView();
@@ -71,19 +60,6 @@ public class JpaBoardController {
 		return mv;
 	}
 
-//	@RequestMapping(value="/jpa/board/write", method=RequestMethod.POST)
-//	public String writeBoard(BoardEntity board, MultipartHttpServletRequest multipartHttpServletRequest) throws Exception{
-//		jpaBoardService.saveBoard(board, multipartHttpServletRequest);		 
-//		return "redirect:/jpa/board";
-//	}
-
-//	  @RequestMapping(value="/jpa/board/write", method=RequestMethod.GET)
-//	  public ModelAndView writeForm(HttpServletResponse response, HttpServletRequest request) {
-//	    ModelAndView mv = new ModelAndView();
-//	    response.setContentType("text/html; charset=UTF-8");
-//	    mv.setViewName("admin/vote/voteWriteForm");
-//	    return mv;
-//	  }
 
 	@RequestMapping(value = "/jpa/board/write", method = RequestMethod.GET)
 	public String openBoardWrite() throws Exception {
@@ -102,17 +78,29 @@ public class JpaBoardController {
 		paramMap.put("title", request.getParameterValues("title"));
 		paramMap.put("contents", request.getParameterValues("contents"));
 		paramMap.put("creatorId", request.getParameterValues("creatorId"));
-		paramMap.put("fileList", mtfRequest.getFile("fileList").getOriginalFilename());
+		//paramMap.put("originalFileName", mtfRequest.getFileNames());
+			
+			 
+
+		List<MultipartFile> files = mtfRequest.getFiles("fileList");
+		String[] fileNames = new String[files.size()];
+		for (int i=0; i<files.size(); i++) {
+			fileNames[i] = files.get(i).getOriginalFilename();
+		}
+		logger.info("파일 저장된 이름"+fileNames);
+		logger.info("파일 저장된 이름"+fileNames[0]);
+		paramMap.put("originalFileName", fileNames);
 		
-		logger.info("파일 받아오냐"+mtfRequest.getFile("fileList").toString());
-		logger.info("파일 받아오냐"+mtfRequest.getFile("fileList").getName());
-		logger.info("파일 받아오냐"+mtfRequest.getFile("fileList").getOriginalFilename());
+  
 		
 		int boardIdx = jpaBoardService.write(paramMap);
 		 if(mtfRequest.getFile("fileList").getSize() != 0) {
 		      jpaBoardService.write_item_images(boardIdx, mtfRequest, filepath, request);
 		    }
-
+ 
+		  
+		 
+		 
 		return "redirect:/jpa/board";
 	}
 
@@ -137,8 +125,7 @@ public class JpaBoardController {
 		// Optional<BoardEntity> optional = JpaBoardRepository.findById(boardIdx);
 		
 		jpaBoardService.increaseHitCnt(boardIdx);
-		ContractResult contractResult = jpaBoardService.view(boardIdx);
- 
+		ContractResult contractResult = jpaBoardService.view(boardIdx);		 
  
 /*
 		JsonParser jsonParser = new JsonParser();
@@ -173,14 +160,15 @@ public class JpaBoardController {
 			mv.addObject("board", board.get(0));
 		}
  
-		 //AdminVoteItemDetail
+		 //FileDetail
 		if (!"\"empty\"".equals(contractResult.toString())) {
 	    ContractResult contractResult_item = jpaBoardService.view_Image(boardIdx);
 	    Gson gson1 = new Gson();
 	    Type type1 = new TypeToken<List<BoardFileEntity>>() {
 	    }.getType();
+	    logger.info("파일 이름"+contractResult_item.toString());
 	    List<BoardFileEntity> contactList_item = gson1.fromJson(contractResult_item.toString(), type1);
-	    	mv.addObject("viewItem", contactList_item);
+	    	mv.addObject("viewFile", contactList_item.get(0));
 		}
   
 		return mv;
@@ -220,20 +208,20 @@ public class JpaBoardController {
 
 	
 	
-	@RequestMapping(value = "/jpa/board/file", method = RequestMethod.GET)
-	public void downloadBoardFile(int boardIdx, int idx, HttpServletResponse response) throws Exception {
-		BoardFileEntity file = jpaBoardService.selectBoardFileInformation(boardIdx, idx);
-
-		byte[] files = FileUtils.readFileToByteArray(new File(file.getStoredFilePath()));
-
-		response.setContentType("application/octet-stream");
-		response.setContentLength(files.length);
-		response.setHeader("Content-Disposition",
-				"attachment; fileName=\"" + URLEncoder.encode(file.getOriginalFileName(), "UTF-8") + "\";");
-		response.setHeader("Content-Transfer-Encoding", "binary");
-
-		response.getOutputStream().write(files);
-		response.getOutputStream().flush();
-		response.getOutputStream().close();
-	}
+//	@RequestMapping(value = "/jpa/board/file", method = RequestMethod.GET)
+//	public void downloadBoardFile(int boardIdx, int idx, HttpServletResponse response) throws Exception {
+//		BoardFileEntity file = jpaBoardService.selectBoardFileInformation(boardIdx, idx);
+//
+//		byte[] files = FileUtils.readFileToByteArray(new File(file.getStoredFilePath()));
+//
+//		response.setContentType("application/octet-stream");
+//		response.setContentLength(files.length);
+//		response.setHeader("Content-Disposition",
+//				"attachment; fileName=\"" + URLEncoder.encode(file.getOriginalFileName(), "UTF-8") + "\";");
+//		response.setHeader("Content-Transfer-Encoding", "binary");
+//
+//		response.getOutputStream().write(files);
+//		response.getOutputStream().flush();
+//		response.getOutputStream().close();
+//	}
 }
