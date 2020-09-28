@@ -33,6 +33,17 @@ function constructor()
           txhash text
     )]])
 
+    --회원 테이블
+    db.exec([[create table if not exists boardUser(
+          idx INTEGER PRIMARY KEY AUTOINCREMENT,
+          id text,
+          password text,
+          auth text
+    )]])
+
+    db.exec([[INSERT INTO UserInfo (idx, id, password, auth) VALUES('
+    1', 'admin', 'admin','admin',)]])
+
 end
 
 

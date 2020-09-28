@@ -9,11 +9,11 @@ import org.springframework.data.repository.query.Param;
 
 import board.board.entity.BoardEntity;
 import board.board.entity.BoardFileEntity;
+import board.board.entity.UserEntity;
 
-public interface JpaBoardRepository extends CrudRepository<BoardEntity, Integer>{
+public interface UserRepository extends CrudRepository<UserEntity, Integer>{
 
-	List<BoardEntity> findAllByOrderByBoardIdxDesc();
+	UserEntity findByUserId(String userId);
 	
-	@Query("SELECT file FROM BoardFileEntity file WHERE board_idx = :boardIdx AND idx = :idx")
-	BoardFileEntity findBoardFile(@Param("boardIdx") int boardIdx, @Param("idx") int idx);
+ 
 }

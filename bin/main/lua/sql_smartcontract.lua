@@ -33,6 +33,15 @@ function constructor()
           txhash text
     )]])
 
+    --회원 테이블
+    db.exec([[create table if not exists boardUser(
+          idx INTEGER PRIMARY KEY AUTOINCREMENT,
+          userType INTEGER,
+          userId text,
+          userPassword text
+    )]])
+
+
 end
 
 

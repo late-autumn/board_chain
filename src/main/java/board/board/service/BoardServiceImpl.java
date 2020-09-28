@@ -21,7 +21,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import board.board.common.Common;
 import board.board.entity.BoardEntity;
 import board.board.entity.BoardFileEntity;
-import board.board.repository.JpaBoardRepository;
+import board.board.repository.BoardRepository;
 import board.board.smartcontract.SmartContract;
 import board.common.FileUtils;
 import hera.api.model.ContractResult;
@@ -30,7 +30,7 @@ import hera.client.AergoClient;
 import hera.wallet.WalletApi;
 
 @Service
-public class JpaBoardServiceImpl implements JpaBoardService {
+public class BoardServiceImpl implements BoardService {
 
 	@Value("${forms.sc.id}")
 	private String SCID;
@@ -45,7 +45,7 @@ public class JpaBoardServiceImpl implements JpaBoardService {
 	protected final Logger logger = getLogger(getClass());
 
 	@Autowired
-	JpaBoardRepository jpaBoardRepository;
+	BoardRepository jpaBoardRepository;
 
 	@Autowired
 	FileUtils fileUtils;

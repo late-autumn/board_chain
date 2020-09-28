@@ -30,12 +30,12 @@ import com.google.gson.Gson;
 
 import board.board.entity.BoardEntity;
 import board.board.entity.BoardFileEntity;
-import board.board.service.JpaBoardServiceImpl;
+import board.board.service.BoardServiceImpl;
 import board.common.FileUtils;
 import hera.api.model.ContractResult;
 
 @Controller
-public class JpaBoardController {
+public class BoardController {
 
 	//@Value("${file.path}")
 	//private String filepath;
@@ -43,7 +43,7 @@ public class JpaBoardController {
 	protected final Logger logger = getLogger(getClass());
 
 	@Autowired
-	private JpaBoardServiceImpl jpaBoardService;
+	private BoardServiceImpl jpaBoardService;
 
 	
 	@RequestMapping(value = "/jpa/board", method = RequestMethod.GET)

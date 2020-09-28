@@ -10,7 +10,7 @@ import board.board.entity.BoardFileEntity;
 
 
  
-public interface JpaBoardService {
+public interface BoardService {
 
 	List<BoardEntity> selectBoardList() throws Exception;
 
