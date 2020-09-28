@@ -251,32 +251,31 @@ public class JpaBoardServiceImpl implements JpaBoardService {
 
 	}
  
-	  public void write_item_images(int boardIdx, MultipartHttpServletRequest mtfRequest, String filepath, HttpServletRequest request) {
-	    //String[] fileinfo = Common.fileupload(boardIdx, mtfRequest, filepath);
-	    String[] fileinfo = null;
-		try {
-			fileinfo = FileUtils.parseFileInfo(mtfRequest);
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-	    //스마트컨트랙트 연결.
-	    // make aergo client
-	    AergoClient aergoClient = new Common().aergoclient();
-	    WalletApi walletApi = new Common()
-	        .aergoKeystore(From_encPrivateKey, From_password, aergoClient);
-
-	    ContractTxReceipt contractExecute = null;
-
-	    try {
-	      contractExecute = sc.contractExecute(walletApi, SCID, "createBoardImages", fileinfo);
-	    } catch (InterruptedException e) {
-	      // TODO Auto-generated catch block
-	      e.printStackTrace();
-	    }
-
-	    aergoClient.close();
-	  }
+//	  public void write_item_images(int boardIdx, MultipartHttpServletRequest mtfRequest, String filepath, HttpServletRequest request) {
+//	    //String[] fileinfo = Common.fileupload(boardIdx, mtfRequest, filepath);
+//	    String[] fileinfo = null;
+//		try {
+//			fileinfo = FileUtils.parseFileInfo(mtfRequest);
+//		} catch (Exception e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
+//	    //스마트컨트랙트 연결.
+//	    // make aergo client
+//	    AergoClient aergoClient = new Common().aergoclient();
+//	    WalletApi walletApi = new Common().aergoKeystore(From_encPrivateKey, From_password, aergoClient);
+//
+//	    ContractTxReceipt contractExecute = null;
+//
+//	    try {
+//	      contractExecute = sc.contractExecute(walletApi, SCID, "createBoardImages", fileinfo);
+//	    } catch (InterruptedException e) {
+//	      // TODO Auto-generated catch block
+//	      e.printStackTrace();
+//	    }
+//
+//	    aergoClient.close();
+//	  }
 	  
 	  public ContractResult view_Image(int boardIdx) {
 		    //스마트컨트랙트 연결.

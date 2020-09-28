@@ -80,19 +80,18 @@ public class FileUtils {
 					
 					//컨트랙트를 위한 부분 별개 저장
 					
-					originalFileName = multipartFile.getOriginalFilename(); // 원본 파일 명
-					fileSize =  Integer.toString((int)multipartFile.getSize()); // 파일 사이즈
-			        storedFilePath = path + "/" + newFileName;
-			        //path를 도메인 패스로 잡아서 올리즈아~ 
-			        
-			        
-			        objList.add(storedFilePath);
-			        objList.add(originalFileName);
-			        objList.add(fileSize);
+//					originalFileName = multipartFile.getOriginalFilename(); // 원본 파일 명
+//					fileSize =  Integer.toString((int)multipartFile.getSize()); // 파일 사이즈
+//					storedFilePath = path + "/" + newFileName;
+//			        //path를 도메인 패스로 잡아서 올리즈아~ 
+//			        
+//			        objList.add(originalFileName);			        
+//			        objList.add(storedFilePath);
+//			        objList.add(fileSize);
 			        
 				}
 			}
-			fileinfo = list.toArray(new String[objList.size()]);
+			fileinfo = objList.toArray(new String[objList.size()]);
 		}
 		//return fileList;
 		return fileinfo;

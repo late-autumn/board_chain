@@ -1,10 +1,10 @@
 forms:
   sc:
-    id: Amh7gHyi5W7E8wTRYkWgn9RjAvJDiR2aRRc5r79C8jVUUbXwVDTH
+    id: Amgodq62AUH3AVrRZWvnzHi9mbHHY3C6mNfEwspzt5w5vV2TDCmG
   from:
     encryptionkey: 47DE1RQgpMMc6Ub3L2MeZkHKFTWNotLbnZJP9iL9BJsgqzA1Mg6cQHjXumNDJX64LzdJN8Z42
     password: password
 
  
-file:
-  path: /home/owen/Desktop/upload/
+#file:
+#  path: /home/owen/Desktop/upload/

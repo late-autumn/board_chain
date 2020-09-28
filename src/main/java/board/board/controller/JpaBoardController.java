@@ -2,7 +2,11 @@ package board.board.controller;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import java.io.File;
 import java.lang.reflect.Type;
+import java.net.URLEncoder;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,8 +37,8 @@ import hera.api.model.ContractResult;
 @Controller
 public class JpaBoardController {
 
-	@Value("${file.path}")
-	private String filepath;
+	//@Value("${file.path}")
+	//private String filepath;
 
 	protected final Logger logger = getLogger(getClass());
 
@@ -69,7 +73,7 @@ public class JpaBoardController {
 	// 게시글 생성
 	@RequestMapping(value = "/jpa/board/write", method = RequestMethod.POST)
 	public String write(HttpServletResponse response, HttpServletRequest request,
-			MultipartHttpServletRequest mtfRequest) {
+			MultipartHttpServletRequest mtfRequest) throws Exception{
 		response.setContentType("text/html; charset=UTF-8");
 
 		// Map paramMap = request.getParameterMap();
@@ -79,28 +83,34 @@ public class JpaBoardController {
 		paramMap.put("contents", request.getParameterValues("contents"));
 		paramMap.put("creatorId", request.getParameterValues("creatorId"));
 		//paramMap.put("originalFileName", mtfRequest.getFileNames());
-			
-			 
-
+	 
 		List<MultipartFile> files = mtfRequest.getFiles("fileList");
 		String[] fileNames = new String[files.size()];
 		for (int i=0; i<files.size(); i++) {
 			fileNames[i] = files.get(i).getOriginalFilename();
 		}
-		logger.info("파일 저장된 이름"+fileNames);
-		logger.info("파일 저장된 이름"+fileNames[0]);
+		
+ 		
+		DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyyMMdd"); 
+		ZonedDateTime current = ZonedDateTime.now();
+		String path = "images/"+current.format(format);
+		String finalPath = path + "/" +Long.toString(System.nanoTime()) + fileNames[0];
+		String fileSize = Integer.toString((int)files.get(0).getSize());
+		String[] changePath = path.split(" ");
+		String[] changeSize = fileSize.split(" ");
+		  
+		
 		paramMap.put("originalFileName", fileNames);
+		paramMap.put("storedFilePath", changePath);
+		paramMap.put("fileSize",changeSize);
 		
   
-		
 		int boardIdx = jpaBoardService.write(paramMap);
 		 if(mtfRequest.getFile("fileList").getSize() != 0) {
-		      jpaBoardService.write_item_images(boardIdx, mtfRequest, filepath, request);
+		      //jpaBoardService.write_item_images(boardIdx, mtfRequest, filepath, request);
+			 FileUtils.parseFileInfo(mtfRequest);
 		    }
- 
-		  
-		 
-		 
+  
 		return "redirect:/jpa/board";
 	}
 
@@ -127,29 +137,6 @@ public class JpaBoardController {
 		jpaBoardService.increaseHitCnt(boardIdx);
 		ContractResult contractResult = jpaBoardService.view(boardIdx);		 
  
-/*
-		JsonParser jsonParser = new JsonParser();
-		String jsonStr = contractResult.toString();
-
-		JsonArray jsonArray = (JsonArray) jsonParser.parse(jsonStr);
-				
-		for (int i = 0; i < jsonArray.size(); i++) {
-			JsonObject object = (JsonObject) jsonArray.get(i);
-			String boardIdx2 = object.get("boardIdx").getAsString();
-			String title = object.get("title").getAsString();
-			String contents = object.get("contents").getAsString();
-			String created_datetime = object.get("created_datetime").getAsString();
-			String creatorId = object.get("creatorId").getAsString();
-			String hitCnt = object.get("hitCnt").getAsString();
-
-			mv.addObject("boardIdx", boardIdx2);
-			mv.addObject("title", title);
-			mv.addObject("contents", contents);
-			mv.addObject("createdDatetime", created_datetime);
-			mv.addObject("creatorId", creatorId);
-			mv.addObject("hitCnt", hitCnt);
-		}
-*/		
 		if (!"\"empty\"".equals(contractResult.toString())) {
 			Gson gson = new Gson();
 			Type type = new TypeToken<List<BoardEntity>>() {
@@ -182,8 +169,9 @@ public class JpaBoardController {
 //	}
 
 	// 게시글 수정.
-	@RequestMapping(value = "/jpa/board/{boardIdx}", method = RequestMethod.PUT)
-	public String edit(HttpServletResponse response, HttpServletRequest request) {
+	@RequestMapping(value = "/jpa/board/{boardIdx}", method = RequestMethod.POST)
+	public String edit(HttpServletResponse response, HttpServletRequest request ,
+			MultipartHttpServletRequest mtfRequest) throws Exception {
 		response.setContentType("text/html; charset=UTF-8");
 
 		//Map paramMap = request.getParameterMap();
@@ -194,7 +182,30 @@ public class JpaBoardController {
 		paramMap.put("title", request.getParameterValues("title"));
 		paramMap.put("contents", request.getParameterValues("contents"));
 
+		//파일 변경 추가 
+		List<MultipartFile> files = mtfRequest.getFiles("fileList");
+		String[] fileNames = new String[files.size()];
+		for (int i=0; i<files.size(); i++) {
+			fileNames[i] = files.get(i).getOriginalFilename();
+		}
+		
+ 		
+		DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyyMMdd"); 
+		ZonedDateTime current = ZonedDateTime.now();
+		String path = "images/"+current.format(format);
+		String finalPath = path + "/" +Long.toString(System.nanoTime()) + fileNames[0];
+		String fileSize = Integer.toString((int)files.get(0).getSize());
+		String[] changePath = path.split(" ");
+		String[] changeSize = fileSize.split(" ");
+		  
+		//paramMap.put("idx", request.getParameterValues("idx"));
+		paramMap.put("originalFileName", fileNames);
+		paramMap.put("storedFilePath", changePath);
+		paramMap.put("fileSize",changeSize);
+ 	
+		
 		jpaBoardService.edit(paramMap);
+		
 		return "redirect:/jpa/board";
  
 	}
@@ -206,22 +217,24 @@ public class JpaBoardController {
 		return "redirect:/jpa/board";
 	}
 
-	
-	
-//	@RequestMapping(value = "/jpa/board/file", method = RequestMethod.GET)
-//	public void downloadBoardFile(int boardIdx, int idx, HttpServletResponse response) throws Exception {
-//		BoardFileEntity file = jpaBoardService.selectBoardFileInformation(boardIdx, idx);
-//
-//		byte[] files = FileUtils.readFileToByteArray(new File(file.getStoredFilePath()));
-//
-//		response.setContentType("application/octet-stream");
-//		response.setContentLength(files.length);
-//		response.setHeader("Content-Disposition",
-//				"attachment; fileName=\"" + URLEncoder.encode(file.getOriginalFileName(), "UTF-8") + "\";");
-//		response.setHeader("Content-Transfer-Encoding", "binary");
-//
-//		response.getOutputStream().write(files);
-//		response.getOutputStream().flush();
-//		response.getOutputStream().close();
-//	}
+		
+	@RequestMapping(value = "/jpa/board/file", method = RequestMethod.GET)
+	public void downloadBoardFile(int boardIdx, int idx, HttpServletResponse response) throws Exception {
+		BoardFileEntity file = jpaBoardService.selectBoardFileInformation(boardIdx, idx);
+ 
+		
+		byte[] files = org.apache.commons.io.FileUtils.readFileToByteArray(new File(file.getStoredFilePath()));
+
+		response.setContentType("application/octet-stream");
+		response.setContentLength(files.length);
+		response.setHeader("Content-Disposition",
+				"attachment; fileName=\"" + URLEncoder.encode(file.getOriginalFileName(), "UTF-8") + "\";");
+		response.setHeader("Content-Transfer-Encoding", "binary");
+
+		response.getOutputStream().write(files);
+		response.getOutputStream().flush();
+		response.getOutputStream().close();
+		 
+		
+	}
 }

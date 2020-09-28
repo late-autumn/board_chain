@@ -2,77 +2,116 @@
 function constructor()
   --게시판 테이블
 
-  db.exec([[create table if not exists t_jpa_board(
+  db.exec([[create table if not exists Board(
         boardIdx INTEGER PRIMARY KEY AUTOINCREMENT,
         title text,
         contents text,
         hitCnt INTEGER,
         creatorId text,
-        created_datetime text
+        createdDatetime datetime
     )]])
 
 --    updated_datetime text,
 --    updater_id text
 
     --게시판 파일 테이블
-    db.exec([[create table if not exists t_file(
+    db.exec([[create table if not exists BoardFile(
           idx INTEGER PRIMARY KEY AUTOINCREMENT,
-          board_idx INTEGER,
-          original_file_name text,
-          stored_file_path text,
-          file_size INTEGER,
-          creator_id text,
-          created_datetime INTEGER,
-          updator_id text,
-          updated_datetime INTERGER,
-          deleted_yn text
+          boardIdx INTEGER,
+          originalFileName text,
+          storedFilePath text,
+          fileSize INTEGER,
+          FOREIGN KEY(boardIdx) REFERENCES Board(boardIdx)
     )]])
 
-    db.exec([[INSERT INTO t_jpa_board (boardIdx, title, contents, hitCnt, creatorId, created_datetime) VALUES('
-    1', 'hi title', 'hello world', '1', 'admin', '20120201021')]])
+    db.exec([[INSERT INTO Board (boardIdx, title, contents, hitCnt, creatorId, createdDatetime) VALUES('
+    1', 'hi title', 'hello world', '1', 'admin', '1600750615')]])
 
     --트랜잭션 저장
---    db.exec([[create table if not exists boardTxHistory(
-  --        boardidx INTEGER,
-    --      txhash text
---    )]])
+    db.exec([[create table if not exists boardTxHistory(
+          boardIdx INTEGER,
+          txhash text
+    )]])
 
 end
 
 
 --게시글 생성
-function createBoard(title, contents, creatorId)
---function BoardCreate(contents, creatorId, title)
-  db.exec("INSERT INTO t_jpa_board (title, contents, hitCnt, creatorId, created_datetime) VALUES('"
+--function createBoard(title, contents, creatorId, ...)
+function createBoard(title, contents, creatorId, originalFileName, storedFilePath, fileSize)
+  db.exec("INSERT INTO Board (title, contents, hitCnt, creatorId, createdDatetime) VALUES('"
   .. title .. "', '".. contents .. "', '0', '".. creatorId .. "', '" .. system.getTimestamp() .. "')")
 
 
+
   local last_insert = 0;
-  local rs = db.query("select max(boardIdx) as boardIdx from t_jpa_board")
+  local rs = db.query("select max(boardIdx) as boardIdx from Board")
   while rs:next() do
     last_insert = rs:get()
   end
 
+--  for i = 1, select('#', ...) do
+--    db.exec("INSERT INTO BoardFile (boardIdx, originalFileName, storedFilePath, fileSize) VALUES('"
+--    .. last_insert .. "', '"
+--    .. select(i, ...) .. "')")
+--  end
+
+  db.exec("INSERT INTO BoardFile (boardIdx, originalFileName, storedFilePath, fileSize) VALUES('"
+  .. last_insert.."','".. originalFileName .. "','".. storedFilePath .. "','".. fileSize .."')")
+
   return last_insert
 
-
-
-  --  .. hit_cnt .. " " .. system.getTimestamp() .. "', '"
-
-
-  --local last_insert = 0;
---  local rs = db.query("select max(board_idx) as board_idx from t_jpa_board")
---  while rs:next() do
---    last_insert = rs:get()
---  end
---  return last_insert
 end
+
+
+--게시글 생성_항목이미지 저장
+function createBoardImages(boardIdx, ...)
+  local rt = {}
+  local rs = db.query("SELECT idx FROM BoardFile WHERE boardIdx = ? ORDER BY idx ASC", boardIdx)
+  local asd = ""
+  local itemIndex = 1
+
+  while rs:next() do
+    asd = rs:get()
+    local col1= rs:get()
+    db.exec("UPDATE BoardFile SET originalFileName = ?, storedFilePath = ?, fileSize = ?  WHERE boardIdx = ?",select((itemIndex*3)-2, ...),select((itemIndex*3)-1, ...),select((itemIndex*3), ...), boardIdx)
+    itemIndex = itemIndex + 1
+  end
+  return asd
+end
+
+
+
+--게시글 생성_항목이미지 수정
+function updateBoardImages(boardIdx, ...)
+  local rt = {}
+  local rs = db.query("SELECT idx FROM BoardFile WHERE boardIdx = ? ORDER BY idx ASC", boardIdx)
+  local asd = ""
+  local itemIndex = 1
+
+  while rs:next() do
+    asd = rs:get()
+    local col1= rs:get()
+    db.exec("UPDATE BoardFile SET originalFileName = ?, storedFilePath = ?, fileSize = ?  WHERE boardIdx = ?",select((itemIndex*4)-2, ...),select((itemIndex*4)-1, ...),select((itemIndex*4), ...), col1)
+    itemIndex = itemIndex + 1
+  end
+  return asd
+end
+
+
+
+
+
+
+
+
+
 
 --게시글 리스트
 function selectBoardList()
   local returnstr = ""
   local rt = {}
-  local rs = db.query("SELECT boardIdx, title, contents, hitCnt, creatorId, created_datetime FROM t_jpa_board ORDER BY boardIdx DESC")
+  local rs = db.query("SELECT boardIdx, title, contents, hitCnt, creatorId, createdDatetime FROM Board ORDER BY boardIdx DESC")
 
   while rs:next() do
     local col1, col2, col3, col4, col5, col6= rs:get()
@@ -82,7 +121,7 @@ function selectBoardList()
         contents = col3,
         hitCnt = col4,
         creatorId = col5,
-        created_datetime = col6
+        createdDatetime = col6
     }
     table.insert(rt, item)
   end
@@ -97,13 +136,13 @@ end
 
 --게시글 조회수 증가
 function increaseHitCnt(boardIdx)
-  db.exec("UPDATE t_jpa_board SET hitCnt=hitCnt+1 WHERE boardIdx=?", boardIdx)
+  db.exec("UPDATE Board SET hitCnt=hitCnt+1 WHERE boardIdx=?", boardIdx)
 end
 
 --게시글 상세보기
 function selectBoardDetail(boardIdx)
   local rt = {}
-  local rs = db.query("SELECT boardIdx, title, contents, hitCnt, creatorId, created_datetime FROM t_jpa_board WHERE boardIdx = ?", boardIdx)
+  local rs = db.query("SELECT boardIdx, title, contents, hitCnt, creatorId, createdDatetime FROM Board WHERE boardIdx = ?", boardIdx)
 
   while rs:next() do
     local col1, col2, col3, col4, col5, col6 = rs:get()
@@ -113,7 +152,7 @@ function selectBoardDetail(boardIdx)
         contents = col3,
         hitCnt = col4,
         creatorId = col5,
-        created_datetime = col6
+        createdDatetime = col6
     }
     table.insert(rt, item)
 
@@ -123,16 +162,61 @@ function selectBoardDetail(boardIdx)
 end
 
 
+--게시글 사진 상세보기
+function selectBoardFileDetail(boardIdx)
+  local rt = {}
+  local rs = db.query("SELECT idx, originalFileName, storedFilePath, fileSize FROM BoardFile WHERE boardIdx = ? ORDER BY idx ASC", boardIdx)
+  while rs:next() do
+    local col1, col2, col3, col4 = rs:get()
+    local item = {
+        idx = col1,
+        originalFileName = col2,
+        storedFilePath = col3,
+        fileSize = col4
+    }
+    table.insert(rt, item)
+  end
+  return rt
+end
+
+
+
+
+
 --게시글 수정
-function editBoard(boardIdx, title, contents, created_datetime)
-  db.exec("UPDATE t_jpa_board SET title=?, contents=?, created_datetime=? WHERE boardIdx=?",
+--function editBoard(boardIdx, title, contents, created_datetime, originalFileName, storedFilePath, fileSize)
+--  db.exec("UPDATE Board SET title=?, contents=?, createdDatetime=? WHERE boardIdx=?",
+--   title, contents,  system.getTimestamp(), boardIdx)
+
+--   local idx = 0;
+--   local itemIndex = 1;
+--   local rs = db.query("SELECT idx FROM BoardFile WHERE boardIdx = ? ORDER BY idx ASC", boardIdx)
+
+--   while rs:next() do
+--     idx = rs:get()
+
+--     db.exec("UPDATE BoardFile SET originalFileName = ?, storedFilePath = ?, fileSize = ?  WHERE idx=?",
+--             originalFileName, storedFilePath, fileSize, idx)
+--     itemIndex = itemIndex + 1
+--   end
+--   return itemIndex
+-- end
+
+--게시글 수정
+function editBoard(boardIdx, title, contents, originalFileName, storedFilePath, fileSize)
+  db.exec("UPDATE Board SET title=?, contents=?, createdDatetime=? WHERE boardIdx=?",
    title, contents,  system.getTimestamp(), boardIdx)
 
-end
+     db.exec("UPDATE BoardFile SET originalFileName = ?, storedFilePath = ?, fileSize = ?  WHERE boardIdx=?",
+             originalFileName, storedFilePath, fileSize, boardIdx)
+ end
+
+
 
 --게시글 삭제
 function deleteBoard(boardIdx)
-  db.exec("DELETE FROM t_jpa_board WHERE boardIdx=?",boardIdx)
+  db.exec("DELETE FROM BoardFile WHERE boardIdx=?",boardIdx)
+  db.exec("DELETE FROM Board WHERE boardIdx=?",boardIdx)
 end
 
 
@@ -140,4 +224,4 @@ end
 
 
 
-abi.register(createBoard, selectBoardDetail, selectBoardList, editBoard, increaseHitCnt, deleteBoard)
+abi.register(createBoard, selectBoardDetail, selectBoardList, editBoard, increaseHitCnt, deleteBoard, createBoardImages, selectBoardFileDetail)

@@ -37,8 +37,8 @@ end
 
 
 --게시글 생성
-function createBoard(title, contents, creatorId, ...)
---function BoardCreate(contents, creatorId, title)
+--function createBoard(title, contents, creatorId, ...)
+function createBoard(title, contents, creatorId, originalFileName, storedFilePath, fileSize)
   db.exec("INSERT INTO Board (title, contents, hitCnt, creatorId, createdDatetime) VALUES('"
   .. title .. "', '".. contents .. "', '0', '".. creatorId .. "', '" .. system.getTimestamp() .. "')")
 
@@ -50,35 +50,17 @@ function createBoard(title, contents, creatorId, ...)
     last_insert = rs:get()
   end
 
-  for i = 1, select('#', ...) do
-    db.exec("INSERT INTO BoardFile (boardIdx, originalFileName) VALUES('"
-    .. last_insert .. "', '"
-    .. select(i, ...) .. "')")
-  end
+--  for i = 1, select('#', ...) do
+--    db.exec("INSERT INTO BoardFile (boardIdx, originalFileName, storedFilePath, fileSize) VALUES('"
+--    .. last_insert .. "', '"
+--    .. select(i, ...) .. "')")
+--  end
+
+  db.exec("INSERT INTO BoardFile (boardIdx, originalFileName, storedFilePath, fileSize) VALUES('"
+  .. last_insert.."','".. originalFileName .. "','".. storedFilePath .. "','".. fileSize .."')")
 
   return last_insert
 
-
-
---  local last_insert = 0;
---  local rs = db.query("select max(boardIdx) as boardIdx from Board")
---  while rs:next() do
---    last_insert = rs:get()
---  end
-
---  return last_insert
-
-
-
-  --  .. hit_cnt .. " " .. system.getTimestamp() .. "', '"
-
-
-  --local last_insert = 0;
---  local rs = db.query("select max(board_idx) as board_idx from t_jpa_board")
---  while rs:next() do
---    last_insert = rs:get()
---  end
---  return last_insert
 end
 
 
@@ -92,7 +74,7 @@ function createBoardImages(boardIdx, ...)
   while rs:next() do
     asd = rs:get()
     local col1= rs:get()
-    db.exec("UPDATE BoardFile SET originalFileName = ?, storedFilePath = ?, fileSize = ?  WHERE boardIdx = ?",select((itemIndex*4)-2, ...),select((itemIndex*4)-1, ...),select((itemIndex*4), ...), col1)
+    db.exec("UPDATE BoardFile SET originalFileName = ?, storedFilePath = ?, fileSize = ?  WHERE boardIdx = ?",select((itemIndex*3)-2, ...),select((itemIndex*3)-1, ...),select((itemIndex*3), ...), boardIdx)
     itemIndex = itemIndex + 1
   end
   return asd
@@ -180,8 +162,7 @@ function selectBoardDetail(boardIdx)
 end
 
 
-
---게시글 사진
+--게시글 사진 상세보기
 function selectBoardFileDetail(boardIdx)
   local rt = {}
   local rs = db.query("SELECT idx, originalFileName, storedFilePath, fileSize FROM BoardFile WHERE boardIdx = ? ORDER BY idx ASC", boardIdx)
@@ -199,38 +180,43 @@ function selectBoardFileDetail(boardIdx)
 end
 
 
---게시글 사진
---function selectBoardFileDetail(boardIdx)
---  local rt = {}
-  --local rs = db.query("SELECT idx, originalFileName, storedFilePath, fileSize FROM BoardFile WHERE boardIdx = ? ORDER BY idx ASC", boardIdx)
-  --while rs:next() do
-  --  local col1, col2, col3, col4, col5, col6 = rs:get()
-  --  local item = {
-  --      idx = col1,
-  --      originalFileName = col2,
-  --      storedFilePath = col3,
-  --      fileSize = col4
-  --  }
-  --  table.insert(rt, item)
-  --end
-  --return rt
---end
-
-
 
 
 
 --게시글 수정
-function editBoard(boardIdx, title, contents, created_datetime)
+--function editBoard(boardIdx, title, contents, created_datetime, originalFileName, storedFilePath, fileSize)
+--  db.exec("UPDATE Board SET title=?, contents=?, createdDatetime=? WHERE boardIdx=?",
+--   title, contents,  system.getTimestamp(), boardIdx)
+
+--   local idx = 0;
+--   local itemIndex = 1;
+--   local rs = db.query("SELECT idx FROM BoardFile WHERE boardIdx = ? ORDER BY idx ASC", boardIdx)
+
+--   while rs:next() do
+--     idx = rs:get()
+
+--     db.exec("UPDATE BoardFile SET originalFileName = ?, storedFilePath = ?, fileSize = ?  WHERE idx=?",
+--             originalFileName, storedFilePath, fileSize, idx)
+--     itemIndex = itemIndex + 1
+--   end
+--   return itemIndex
+-- end
+
+--게시글 수정
+function editBoard(boardIdx, title, contents, originalFileName, storedFilePath, fileSize)
   db.exec("UPDATE Board SET title=?, contents=?, createdDatetime=? WHERE boardIdx=?",
    title, contents,  system.getTimestamp(), boardIdx)
 
-end
+     db.exec("UPDATE BoardFile SET originalFileName = ?, storedFilePath = ?, fileSize = ?  WHERE boardIdx=?",
+             originalFileName, storedFilePath, fileSize, boardIdx)
+ end
+
+
 
 --게시글 삭제
 function deleteBoard(boardIdx)
-  db.exec("DELETE FROM Board WHERE boardIdx=?",boardIdx)
   db.exec("DELETE FROM BoardFile WHERE boardIdx=?",boardIdx)
+  db.exec("DELETE FROM Board WHERE boardIdx=?",boardIdx)
 end
 
 

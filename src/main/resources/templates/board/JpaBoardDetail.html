@@ -8,7 +8,10 @@
 <body>
 	<div class="container">
 		<h2>게시글 상세 화면</h2>
-	    <form id="frm" method="post">
+	    <form id="frm" method="post" enctype="multipart/form-data">
+<!-- 	     -->
+ 
+ 
 	    	<table class="board_detail">
 				<colgroup>
 					<col width="15%"/>
@@ -41,6 +44,7 @@
 					</tr>
 				</tbody>
 			</table>
+			<input type="file" id="fileList" name="fileList" multiple="multiple" disabled>  
 			<input type="hidden" id="boardIdx" name="boardIdx" th:value="${board.boardIdx }">
 			<input type="hidden" id="method" name="_method"/>
 		</form>
@@ -49,11 +53,18 @@
 			<a th:each="list : ${viewFile.fileList}" th:href="@{/jpa/board/file(idx=${list.idx}, boardIdx=${board.boardIdx})}" th:text="|${list.originalFileName} (${#numbers.formatInteger(list.fileSize/1000, 1, 'DEFAULT')} kb)|"></a>
 		</div>   
  -->		 
-			<td th:text="${viewFile.originalFileName }"></td>
-
+			
+<a  th:href="@{/jpa/board/file(idx=${viewFile.idx}, boardIdx=${board.boardIdx})}" th:text="|${viewFile.originalFileName} (${#numbers.formatInteger(viewFile.fileSize/1000, 1, 'DEFAULT')} kb)|"></a>
+		
+	<!-- 	<img src="/images/${viewFile.storedFilePath}/a.png"/> -->
+		
+		<img src="/resources/images/20200928/632415965012752.png"/>
+ 
+		
 		<a href="#this" id="list" class="btn">목록으로</a>
-		<a href="#this" id="edit" class="btn">수정하기</a>
-		<a href="#this" id="confirm" class="btn" style="display:none">수정반영하기</a>
+		<a href="#this" id="change" class="btn">수정하기</a>
+ 		<a href="#this" id="edit" class="btn" style="display:none">수정반영하기</a> 
+<!-- 		<input type="submit" id="confirm" value="수정반영하기" class="btn"style="display:none"> -->
 		<a href="#this" id="delete" class="btn">삭제하기</a>
 	</div>
 	
@@ -66,18 +77,20 @@
 				location.href = "/jpa/board/";
 			});
 			
-			$("#edit").on("click", function(){
+			$("#change").on("click", function(){
 				title.disabled = false;
 				contents.disabled = false;
-				 $("#confirm").css({
+				fileList.disabled = false;
+				 $("#edit").css({
 			            display: "inline"
 			        });
-				edit.style="display:none";
+				change.style="display:none";
+ 
 			});
 			
-			$("#confirm").on("click", function(){
-				 $("#method").val("put");
-				
+			$("#edit").on("click", function(){
+/* 				 $("#method").val("put"); */
+
 				var frm = $("#frm")[0];
 				frm.action = "/jpa/board/"+boardIdx;
 				frm.submit(); 
