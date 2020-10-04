@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,12 +20,15 @@ import board.board.entity.BoardFileEntity;
 @Component
 public class FileUtils {
 	
+	private static final String filePath = "/Users/owen/toy/board_chain/images/";
+	
 //	public List<BoardFileEntity> parseFileInfo(MultipartHttpServletRequest multipartHttpServletRequest) throws Exception{
 	public static String[] parseFileInfo(MultipartHttpServletRequest multipartHttpServletRequest) throws Exception{
-	if(ObjectUtils.isEmpty(multipartHttpServletRequest)){
+		if(ObjectUtils.isEmpty(multipartHttpServletRequest)){
 			return null;
 		}
-		
+	
+	
 		List<BoardFileEntity> fileList = new ArrayList<>();
 		List<Object> objList = new ArrayList<>();
 		
@@ -35,7 +39,7 @@ public class FileUtils {
 		
 		DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyyMMdd"); 
     	ZonedDateTime current = ZonedDateTime.now();
-    	String path = "images/"+current.format(format);
+    	String path = filePath + current.format(format);
     	File file = new File(path);
 		if(file.exists() == false){
 			file.mkdirs();
@@ -54,6 +58,7 @@ public class FileUtils {
 						break;
 					}
 					else{
+						 originalFileName = multipartFile.getOriginalFilename();
 						if(contentType.contains("image/jpeg")) {
 							originalFileExtension = ".jpg";
 						}
@@ -68,7 +73,8 @@ public class FileUtils {
 						}
 					}
 					
-					newFileName = Long.toString(System.nanoTime()) + originalFileExtension;
+					//newFileName = Long.toString(System.nanoTime()) + originalFileExtension;
+					newFileName =  originalFileName;
 					BoardFileEntity boardFile = new BoardFileEntity();
 					boardFile.setFileSize(multipartFile.getSize());
 					boardFile.setOriginalFileName(multipartFile.getOriginalFilename());

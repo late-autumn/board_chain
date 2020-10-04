@@ -11,9 +11,6 @@ function constructor()
         createdDatetime datetime
     )]])
 
---    updated_datetime text,
---    updater_id text
-
     --게시판 파일 테이블
     db.exec([[create table if not exists BoardFile(
           idx INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,35 +32,28 @@ function constructor()
 
     --회원 테이블
     db.exec([[create table if not exists boardUser(
-          idx INTEGER PRIMARY KEY AUTOINCREMENT,
-          userType INTEGER,
-          userId text,
-          userPassword text
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          email text,
+          password text,
+          auth text
     )]])
 
+    db.exec([[INSERT INTO UserInfo (idx, id, password, auth) VALUES('
+    1', 'admin', 'admin','admin',)]])
 
 end
 
 
 --게시글 생성
---function createBoard(title, contents, creatorId, ...)
 function createBoard(title, contents, creatorId, originalFileName, storedFilePath, fileSize)
   db.exec("INSERT INTO Board (title, contents, hitCnt, creatorId, createdDatetime) VALUES('"
   .. title .. "', '".. contents .. "', '0', '".. creatorId .. "', '" .. system.getTimestamp() .. "')")
-
-
 
   local last_insert = 0;
   local rs = db.query("select max(boardIdx) as boardIdx from Board")
   while rs:next() do
     last_insert = rs:get()
   end
-
---  for i = 1, select('#', ...) do
---    db.exec("INSERT INTO BoardFile (boardIdx, originalFileName, storedFilePath, fileSize) VALUES('"
---    .. last_insert .. "', '"
---    .. select(i, ...) .. "')")
---  end
 
   db.exec("INSERT INTO BoardFile (boardIdx, originalFileName, storedFilePath, fileSize) VALUES('"
   .. last_insert.."','".. originalFileName .. "','".. storedFilePath .. "','".. fileSize .."')")
@@ -72,7 +62,7 @@ function createBoard(title, contents, creatorId, originalFileName, storedFilePat
 
 end
 
-
+--[[
 --게시글 생성_항목이미지 저장
 function createBoardImages(boardIdx, ...)
   local rt = {}
@@ -107,6 +97,7 @@ function updateBoardImages(boardIdx, ...)
   return asd
 end
 
+]]--
 
 
 
@@ -141,6 +132,8 @@ function selectBoardList()
   end
   return rt
 end
+
+
 
 
 --게시글 조회수 증가
@@ -228,9 +221,39 @@ function deleteBoard(boardIdx)
   db.exec("DELETE FROM Board WHERE boardIdx=?",boardIdx)
 end
 
+-- 회원 가입 및 관리
+
+--회원 가입
+ function createAccount(email, password, auth)
+  db.exec("INSERT INTO boardUser (email, password, auth) VALUES('"
+  .. email .. "', '".. password .. "', '".. auth .. "')")
+end
+
+--중복 회원 방지 체크
+  function checkAccountEmail(email)
+  db.query("SELECT email FROM boardUser WHERE email=?"email)
+end
+
+-- 로그인
+ function selectAccountLogin(email, password)
+     local rt = {}
+   local rs = db.query("SELECT email, userName, auth FROM boardUser WHERE email = ?, password = ?", email, password)
+
+   while rs:next() do
+     local col1, col2, col3 = rs:get()
+     local item = {
+         email = col1,
+         userName = col2,
+         auth = col3
+        }
+     table.insert(rt, item)
+
+   end
+
+   return rt
+ end
 
 
 
 
-
-abi.register(createBoard, selectBoardDetail, selectBoardList, editBoard, increaseHitCnt, deleteBoard, createBoardImages, selectBoardFileDetail)
+abi.register(createBoard, selectBoardDetail, selectBoardList, editBoard, increaseHitCnt, deleteBoard, createBoardImages, selectBoardFileDetail, createAccount,checkAccountEmail, selectAccountLogin)

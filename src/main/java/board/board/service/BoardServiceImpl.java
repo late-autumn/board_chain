@@ -43,55 +43,10 @@ public class BoardServiceImpl implements BoardService {
 
 	SmartContract sc = new SmartContract();
 	protected final Logger logger = getLogger(getClass());
-
-	@Autowired
-	BoardRepository jpaBoardRepository;
-
+ 
 	@Autowired
 	FileUtils fileUtils;
-
-	@Override
-	public List<BoardEntity> selectBoardList() throws Exception {
-		return jpaBoardRepository.findAllByOrderByBoardIdxDesc();
-	}
-
-	@Override
-	public void saveBoard(BoardEntity board, MultipartHttpServletRequest multipartHttpServletRequest) throws Exception {
-//		board.setCreatorId("admin");
-//		List<BoardFileEntity> list = fileUtils.parseFileInfo(multipartHttpServletRequest);
-//		if (CollectionUtils.isEmpty(list) == false) {
-//			board.setFileList(list);
-//		}
-//		jpaBoardRepository.save(board);
-	}
-
-	@Override
-	public BoardEntity selectBoardDetail(int boardIdx) throws Exception {
-		Optional<BoardEntity> optional = jpaBoardRepository.findById(boardIdx);
-		if (optional.isPresent()) {
-			BoardEntity board = optional.get();
-			board.setHitCnt(board.getHitCnt() + 1);
-			jpaBoardRepository.save(board);
-
-			return board;
-		} else {
-			throw new NullPointerException();
-		}
-	}
-
-	@Override
-	public void deleteBoard(int boardIdx) {
-		jpaBoardRepository.deleteById(boardIdx);
-	}
-
-	@Override
-	public BoardFileEntity selectBoardFileInformation(int boardIdx, int idx) throws Exception {
-		BoardFileEntity boardFile = jpaBoardRepository.findBoardFile(boardIdx, idx);
-		return boardFile;
-	}
-
-	////////////////////////////////////////////////////
-
+ 
 	public int write(Map<?, ?> params) {
 		
 		// 스마트컨트랙트 연결.
@@ -154,6 +109,7 @@ public class BoardServiceImpl implements BoardService {
 
 	}
 
+	
 	public ContractResult view(int boardIdx) {
 		// 스마트컨트랙트 연결.
 		// make aergo client

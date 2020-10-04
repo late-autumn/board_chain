@@ -43,15 +43,15 @@ public class BoardController {
 	protected final Logger logger = getLogger(getClass());
 
 	@Autowired
-	private BoardServiceImpl jpaBoardService;
+	private BoardServiceImpl boardService;
 
 	
-	@RequestMapping(value = "/jpa/board", method = RequestMethod.GET)
+	@RequestMapping(value = "/blocko/board", method = RequestMethod.GET)
 	public ModelAndView openBoardList(HttpServletResponse response, HttpServletRequest request) {
 		ModelAndView mv = new ModelAndView();
 		response.setContentType("text/html; charset=UTF-8");
-		mv.setViewName("board/JpaBoardList");
-		ContractResult contractResult = jpaBoardService.list();
+		mv.setViewName("board/BoardList");
+		ContractResult contractResult = boardService.list();
 
 		if (!"\"empty\"".equals(contractResult.toString())) {
 			Gson gson = new Gson();
@@ -61,17 +61,18 @@ public class BoardController {
 			List<BoardEntity> list = gson.fromJson(contractResult.toString(), type);
 			mv.addObject("list", list);
 		}
+		
 		return mv;
 	}
 
 
-	@RequestMapping(value = "/jpa/board/write", method = RequestMethod.GET)
+	@RequestMapping(value = "/blocko/board/write", method = RequestMethod.GET)
 	public String openBoardWrite() throws Exception {
-		return "/board/jpaBoardWrite";
+		return "/board/BoardWrite";
 	}
 
 	// 게시글 생성
-	@RequestMapping(value = "/jpa/board/write", method = RequestMethod.POST)
+	@RequestMapping(value = "/blocko/board/write", method = RequestMethod.POST)
 	public String write(HttpServletResponse response, HttpServletRequest request,
 			MultipartHttpServletRequest mtfRequest) throws Exception{
 		response.setContentType("text/html; charset=UTF-8");
@@ -82,7 +83,6 @@ public class BoardController {
 		paramMap.put("title", request.getParameterValues("title"));
 		paramMap.put("contents", request.getParameterValues("contents"));
 		paramMap.put("creatorId", request.getParameterValues("creatorId"));
-		//paramMap.put("originalFileName", mtfRequest.getFileNames());
 	 
 		List<MultipartFile> files = mtfRequest.getFiles("fileList");
 		String[] fileNames = new String[files.size()];
@@ -105,37 +105,38 @@ public class BoardController {
 		paramMap.put("fileSize",changeSize);
 		
   
-		int boardIdx = jpaBoardService.write(paramMap);
+		int boardIdx = boardService.write(paramMap);
 		 if(mtfRequest.getFile("fileList").getSize() != 0) {
-		      //jpaBoardService.write_item_images(boardIdx, mtfRequest, filepath, request);
+		      //boardService.write_item_images(boardIdx, mtfRequest, filepath, request);
 			 FileUtils.parseFileInfo(mtfRequest);
 		    }
   
-		return "redirect:/jpa/board";
+		return "redirect:/blocko/board";
 	}
+	
 
-//	@RequestMapping(value="/jpa/board/{boardIdx}", method=RequestMethod.GET)
+//	@RequestMapping(value="/blocko/board/{boardIdx}", method=RequestMethod.GET)
 //	public ModelAndView openBoardDetail(@PathVariable("boardIdx") int boardIdx) throws Exception{
-//		ModelAndView mv = new ModelAndView("/board/jpaBoardDetail");
+//		ModelAndView mv = new ModelAndView("/board/blockoBoardDetail");
 //		
-//		BoardEntity board = jpaBoardService.selectBoardDetail(boardIdx);
+//		BoardEntity board = boardService.selectBoardDetail(boardIdx);
 //		logger.info("변환형태:"+board);
 //		mv.addObject("board", board);
 //		
 //		return mv;
 //	}
 
-	@RequestMapping(value = "/jpa/board/{boardIdx}", method = RequestMethod.GET)
+	@RequestMapping(value = "/blocko/board/{boardIdx}", method = RequestMethod.GET)
 	public ModelAndView openBoardDetail(HttpServletResponse response, HttpServletRequest request,
 			@PathVariable("boardIdx") int boardIdx) {
 		ModelAndView mv = new ModelAndView();
 		response.setContentType("text/html; charset=UTF-8");
-		mv.setViewName("board/JpaBoardDetail");
+		mv.setViewName("board/BoardDetail");
 		Map paramMap = request.getParameterMap();
-		// Optional<BoardEntity> optional = JpaBoardRepository.findById(boardIdx);
+		// Optional<BoardEntity> optional = blockoBoardRepository.findById(boardIdx);
 		
-		jpaBoardService.increaseHitCnt(boardIdx);
-		ContractResult contractResult = jpaBoardService.view(boardIdx);		 
+		boardService.increaseHitCnt(boardIdx);
+		ContractResult contractResult = boardService.view(boardIdx);		 
  
 		if (!"\"empty\"".equals(contractResult.toString())) {
 			Gson gson = new Gson();
@@ -144,32 +145,36 @@ public class BoardController {
 			 
 			List<BoardEntity> board = gson.fromJson(contractResult.toString(), type);
 			
+			if( board.size()!=0){
 			mv.addObject("board", board.get(0));
+			}
 		}
  
 		 //FileDetail
 		if (!"\"empty\"".equals(contractResult.toString())) {
-	    ContractResult contractResult_item = jpaBoardService.view_Image(boardIdx);
+	    ContractResult contractResult_item = boardService.view_Image(boardIdx);
 	    Gson gson1 = new Gson();
 	    Type type1 = new TypeToken<List<BoardFileEntity>>() {
 	    }.getType();
 	    logger.info("파일 이름"+contractResult_item.toString());
 	    List<BoardFileEntity> contactList_item = gson1.fromJson(contractResult_item.toString(), type1);
-	    	mv.addObject("viewFile", contactList_item.get(0));
+	    	if(contactList_item.size()!=0) {
+	    		mv.addObject("viewFile", contactList_item.get(0));
+	    	}
 		}
   
 		return mv;
 	}
 	
 
-//	@RequestMapping(value = "/jpa/board/{boardIdx}", method = RequestMethod.PUT)
+//	@RequestMapping(value = "/blocko/board/{boardIdx}", method = RequestMethod.PUT)
 //	public String updateBoard(BoardEntity board) throws Exception {
-//		jpaBoardService.saveBoard(board, null);
-//		return "redirect:/jpa/board";
+//		boardService.saveBoard(board, null);
+//		return "redirect:/blocko/board";
 //	}
 
 	// 게시글 수정.
-	@RequestMapping(value = "/jpa/board/{boardIdx}", method = RequestMethod.POST)
+	@RequestMapping(value = "/blocko/board/{boardIdx}", method = RequestMethod.POST)
 	public String edit(HttpServletResponse response, HttpServletRequest request ,
 			MultipartHttpServletRequest mtfRequest) throws Exception {
 		response.setContentType("text/html; charset=UTF-8");
@@ -193,7 +198,7 @@ public class BoardController {
 		DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyyMMdd"); 
 		ZonedDateTime current = ZonedDateTime.now();
 		String path = "images/"+current.format(format);
-		String finalPath = path + "/" +Long.toString(System.nanoTime()) + fileNames[0];
+		//String finalPath = path + "/" +Long.toString(System.nanoTime()) + fileNames[0];
 		String fileSize = Integer.toString((int)files.get(0).getSize());
 		String[] changePath = path.split(" ");
 		String[] changeSize = fileSize.split(" ");
@@ -204,36 +209,36 @@ public class BoardController {
 		paramMap.put("fileSize",changeSize);
  	
 		
-		jpaBoardService.edit(paramMap);
+		boardService.edit(paramMap);
 		
-		return "redirect:/jpa/board";
+		return "redirect:/blocko/board";
  
 	}
 
-	@RequestMapping(value = "/jpa/board/{boardIdx}", method = RequestMethod.DELETE)
+	@RequestMapping(value = "/blocko/board/{boardIdx}", method = RequestMethod.DELETE)
 	public String deleteBoard(@PathVariable("boardIdx") int boardIdx) throws Exception {
-		jpaBoardService.delete(boardIdx);
-		//jpaBoardService.deleteBoard(boardIdx);
-		return "redirect:/jpa/board";
+		boardService.delete(boardIdx);
+		//boardService.deleteBoard(boardIdx);
+		return "redirect:/blocko/board";
 	}
 
 		
-	@RequestMapping(value = "/jpa/board/file", method = RequestMethod.GET)
+	@RequestMapping(value = "/blocko/board/file", method = RequestMethod.GET)
 	public void downloadBoardFile(int boardIdx, int idx, HttpServletResponse response) throws Exception {
-		BoardFileEntity file = jpaBoardService.selectBoardFileInformation(boardIdx, idx);
- 
-		
-		byte[] files = org.apache.commons.io.FileUtils.readFileToByteArray(new File(file.getStoredFilePath()));
-
-		response.setContentType("application/octet-stream");
-		response.setContentLength(files.length);
-		response.setHeader("Content-Disposition",
-				"attachment; fileName=\"" + URLEncoder.encode(file.getOriginalFileName(), "UTF-8") + "\";");
-		response.setHeader("Content-Transfer-Encoding", "binary");
-
-		response.getOutputStream().write(files);
-		response.getOutputStream().flush();
-		response.getOutputStream().close();
+//		BoardFileEntity file = boardService.selectBoardFileInformation(boardIdx, idx);
+// 
+//		
+//		byte[] files = org.apache.commons.io.FileUtils.readFileToByteArray(new File(file.getStoredFilePath()));
+//
+//		response.setContentType("application/octet-stream");
+//		response.setContentLength(files.length);
+//		response.setHeader("Content-Disposition",
+//				"attachment; fileName=\"" + URLEncoder.encode(file.getOriginalFileName(), "UTF-8") + "\";");
+//		response.setHeader("Content-Transfer-Encoding", "binary");
+//
+//		response.getOutputStream().write(files);
+//		response.getOutputStream().flush();
+//		response.getOutputStream().close();
 		 
 		
 	}
