@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko" 
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorator="common/layout_login">
+
+<section layout:fragment="f-content">
+	<div class="login_wrapper" style="margin: calc(50vh - 193px) auto 0px;">
+		<h1><img th:src="@{/image/blocko.png}" width="50" height="auto" alt="demo" id="btn_loginHome"></h1>
+		<form method="post" th:action="@{/blocko/login}">
+			<div>
+				<input type="text" name="email" class="form-control" placeholder="email" autocomplete="off" required/>
+			</div>
+			<div style="margin-bottom: 50px;">
+				<input type="password" name="password" class="form-control" placeholder="Password" autocomplete="off" required/>
+			</div>
+			<div>
+				<button type="button" class="btn btn-info btn-large form-control" id="btn_login">Login</button>
+			</div>
+			<div>
+				<button type="button" class="btn btn-secondary btn-large form-control" id="btn_registerForm">Register</button>
+			</div>
+		</form>
+		<hr class="separator"/>
+		<div>
+ 
+			<p>©2020 All Rights Reserved.</p>
+		</div>
+	</div>
+</section>
+
+<th:block layout:fragment="f-script">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script type="text/javascript">
+/* <script>
+ */$(function() {
+	$(document.body).delegate(":input", "keyup", function (e) {
+		if (e.which == 13)
+			$("#btn_login").trigger("click");
+	});
+	
+	$("#btn_login").on("click", function() {
+		var email = $("input[name='email']").val(), password = $("input[name='password']").val();
+		if (email == "") {
+			alert("사용자이름을 입력하세요");
+			return false;
+		} else if (password == "") {
+			alert("비밀번호를 입력하세요");
+			return false;
+		}
+		$(this).closest("form").submit();
+	});
+	
+	$("#btn_registerForm").on("click", function() {
+		location.href = "/blocko/register";
+	});
+	
+	
+});
+</script>
+</th:block>

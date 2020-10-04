@@ -22,23 +22,23 @@
 	                <th scope="col">제목</th>
 	                <th scope="col">조회수</th>
 	                <th scope="col">작성자</th>
-	                <th scope="col">작성일</th>
+	                <th scope="col">작성일</th> 
 	            </tr>
 	        </thead>
 	        <tbody>
 	        	<tr th:if="${#lists.size(list)} > 0" th:each="list : ${list}">
 	        		<td th:text="${list.boardIdx}"></td>
-	        		<td class="title"><a th:href="@{/jpa/board/{boardIdx}(boardIdx=${list.boardIdx})}" th:text="${list.title}"></a></td>
+	        		<td class="title"><a th:href="@{/blocko/board/{boardIdx}(boardIdx=${list.boardIdx})}" th:text="${list.title}"></a></td>
 	        		<td th:text="${list.hitCnt}"></td>
 	        		<td th:text="${list.creatorId}"></td>
-	        		<td th:text="${list.createdDatetime}"></td>
+	        		<td th:text="${list.createdDatetime}"></td> 
 	        	</tr> 
 	        	<tr th:unless="${#lists.size(list)} > 0">
 	        		<td colspan="4">조회된 결과가 없습니다.</td>
 	        	</tr>
 	        </tbody>
 	    </table>
-	    <a href="/jpa/board/write" class="btn">글 쓰기</a>
+	    <a href="/blocko/board/write" class="btn">글 쓰기</a>
     </div>
 </body>
 </html>

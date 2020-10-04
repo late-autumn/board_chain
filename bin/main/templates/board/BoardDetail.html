@@ -49,22 +49,19 @@
 		</form>
 		
 <!-- 	 	 <div class="file_list">
-			<a th:each="list : ${viewFile.fileList}" th:href="@{/jpa/board/file(idx=${list.idx}, boardIdx=${board.boardIdx})}" th:text="|${list.originalFileName} (${#numbers.formatInteger(list.fileSize/1000, 1, 'DEFAULT')} kb)|"></a>
+			<a th:each="list : ${viewFile.fileList}" th:href="@{/blocko/board/file(idx=${list.idx}, boardIdx=${board.boardIdx})}" th:text="|${list.originalFileName} (${#numbers.formatInteger(list.fileSize/1000, 1, 'DEFAULT')} kb)|"></a>
 		</div>   
  -->		 
 			
-<a  th:href="@{/jpa/board/file(idx=${viewFile.idx}, boardIdx=${board.boardIdx})}" th:text="|${viewFile.originalFileName} (${#numbers.formatInteger(viewFile.fileSize/1000, 1, 'DEFAULT')} kb)|"></a>
-		
-	<!-- 	<img src="/images/${viewFile.storedFilePath}/a.png"/> -->
-		
+<!-- 	 <a  th:href="@{/blocko/board/file(idx=${viewFile.idx}, boardIdx=${board.boardIdx})}" th:text="|${viewFile.originalFileName}  (${#numbers.formatInteger(viewFile.fileSize/1000, 1, 'DEFAULT')} kb)|"></a>  -->
+   	<a  th:href=" '/' + ${viewFile.storedFilePath}+ '/' + ${viewFile.originalFileName}" th:text="|${viewFile.originalFileName} (${#numbers.formatInteger(viewFile.fileSize/1000, 1, 'DEFAULT')} kb)|"></a> 
+ 		
 		<p>
-		<img src="https://s.pstatic.net/static/www/img/2018/sp_search.svg">
- 
-		<img src="../images/20200928/632415965012752.jpg" alt="test" width="100%" height="200px">
-<!-- 		<img src="/Users/owen/Documents/workspace-spring-tool-suite-4-4.7.2.RELEASE/board/images/20200928/632415965012752.jpg" alt="테스트사진"/>
- -->		</p>
- 
+		<img th:src ="'/'+ ${viewFile.storedFilePath} + '/' + ${viewFile.originalFileName} " />
 		
+		<!-- <img src="/file/20200928/632415965012752.jpg" alt="테스트사진"/>  -->
+  		</p>
+   		 
 		<a href="#this" id="list" class="btn">목록으로</a>
 		<a href="#this" id="change" class="btn">수정하기</a>
  		<a href="#this" id="edit" class="btn" style="display:none">수정반영하기</a> 
@@ -73,12 +70,24 @@
 	
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 	<script type="text/javascript">
+	var boardIdx = $("#boardIdx").val();
 		$(document).ready(function(){
-			var boardIdx = $("#boardIdx").val();
+			
 			
 			$("#list").on("click", function(){
-				location.href = "/jpa/board/";
+				location.href = "/blocko/board/";
 			});
+			
+			/*
+			$("#delete").on("click", function(){
+				$("#method").val("delete");
+				alert("dd")
+				alert($("#method").val("delete"))
+				debugger
+				var frm = $("#frm")[0];
+ 				frm.action = "/blocko/board/"+boardIdx;
+				frm.submit(); 
+			}); */
 			
 			$("#change").on("click", function(){
 				title.disabled = false;
@@ -95,18 +104,27 @@
 /* 				 $("#method").val("put"); */
 
 				var frm = $("#frm")[0];
-				frm.action = "/jpa/board/"+boardIdx;
+				frm.action = "/blocko/board/"+boardIdx;
 				frm.submit(); 
 				
 			});		
-			$("#delete").on("click", function(){
-				$("#method").val("delete");
-				
-				var frm = $("#frm")[0];
-				frm.action = "/jpa/board/"+boardIdx;
-				frm.submit();
-			});
+			
 		});
+		$("#delete").on("click", function(){
+            var frm = $("frm")[0];
+			$.ajax({
+                url: "/blocko/board/"+boardIdx ,
+                method: "DELETE",
+                dataType: "text",
+                success: function (data) {
+                	alert("삭제 성공 ") 
+                	window.location.href = "/blocko/board"
+                }
+            })
+		});
+		
+ 
+		
 	</script>
 </body>
 </html>

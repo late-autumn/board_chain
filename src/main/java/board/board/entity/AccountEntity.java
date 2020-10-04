@@ -23,29 +23,37 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+//@Entity
+//@Table(name="t_jpa_board")
+//@NoArgsConstructor
+//@Data
 
 @Entity
-@Table(name="t_user_info")
+@Table(name="t_account")
 @AllArgsConstructor
 @Builder
 @EqualsAndHashCode
 @NoArgsConstructor
 @Data
 @ToString
-public class UserEntity {
+public class AccountEntity {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private int boardIdx;
+	private int id;
 	
 	@Column(nullable=false)
-	private String id;
+	private int auth;
 	
 	@Column(nullable=false)
-	private String password;	  
+	private String useName;
 	
 	@Column(nullable=false)
-	private String auth;
- 
-
+	private String email;
+	
+	@Column(nullable=false)
+	private String password;
+	
+  
+	
 }

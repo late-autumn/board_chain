@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<!-- <html lang="ko" 
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorator="common/layout_login"> -->
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<th:block layout:fragment="f-title">BLOCKO 회원가입</th:block>
+
+<section layout:fragment="f-content">
+	<div class="login_wrapper" style="margin: calc(50vh - 320px) auto 0px;">
+		<h1><img th:src="@{/image/like.png}" width="50" height="auto" alt="demo" id="btn_loginHome"/></h1>
+		<form method="post" th:action="@{/blocko/register}">
+			<div>
+				<input type="text" name="email" class="form-control" placeholder="이메일" autocomplete="off" required/>
+			</div>
+			<div>
+				<input type="password" name="password" class="form-control" placeholder="비밀번호" autocomplete="off" required/>
+			</div>
+			<div>
+				<input type="text" name="name" class="form-control" placeholder="이름" autocomplete="off" required/>
+			</div>
+		  	<div>
+				<button type="submit" class="btn btn-dark btn-large form-control">Register</button>
+			</div>
+			<div>
+				<button type="button" class="btn btn-secondary btn-large form-control" id="btn_loginForm">Back</button>
+			</div>
+		</form>
+		<hr class="separator"/>
+		<div>
+ 
+			<p>©2020 All Rights Reserved.</p>
+		</div>
+	</div>
+</section>
+
+<!-- <th:block layout:fragment="f-script"> -->
+<!-- <script> -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script type="text/javascript">
+
+$(document).ready(function(){
+		
+ 	$("form").on("submit", function(e) {
+ 		/*
+ 		e.preventDefault();
+		var $form = $(this).closest("form");
+		var formData = $form.serializeObject();
+		
+		$("section div:eq(0)").append('<div id="d-spin" class="spinner-border">');
+		$.ajax({
+			type : $form.attr("method"),
+			dataType : 'json',
+			contentType : "application/json",
+			data : JSON.stringify(formData),
+			url : $form.attr("action"),
+			beforeSend : function(xhr){
+				xhr.setRequestHeader($("meta[name='_csrf_header']").attr("content"), $("meta[name='_csrf']").attr("content"));
+			},
+			success : function(res) {
+				$("#d-spin").remove();
+				if (res.duplicate) {
+					$.notify("중복된 이메일 입니다.");
+					$("input[name='email']").val("");
+					$("input[name='email']").focus();
+				} else if (res.success) {
+					$.notify("회원 가입 완료되었습니다.");
+					setTimeout(function() {window.location = document.referrer}, 800);						
+				} else {
+					$("#d-spin").hide();
+					$.notify("crud fail");
+				}
+			},
+			error : function(error) {
+				alert(error.errorMsg);
+			}
+		});
+	
+		*/
+		location.href="/blocko/login";
+	});	 
+	
+	$("#btn_loginForm").on("click", function() {
+		location.href = "/blocko/login";
+	});
+	
+	
+	
+});
+</script>
+<!-- </th:block> -->
