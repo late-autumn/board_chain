@@ -32,14 +32,15 @@ function constructor()
 
     --회원 테이블
     db.exec([[create table if not exists boardUser(
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          idx INTEGER PRIMARY KEY AUTOINCREMENT,
           email text,
           password text,
+          userName text,
           auth text
     )]])
 
-    db.exec([[INSERT INTO UserInfo (idx, id, password, auth) VALUES('
-    1', 'admin', 'admin','admin',)]])
+--    db.exec([[INSERT INTO UserInfo (idx, id, password, auth) VALUES('
+--    1', 'admin', 'hello world', '1', 'admin', '1600750615')]])
 
 end
 
@@ -134,8 +135,6 @@ function selectBoardList()
 end
 
 
-
-
 --게시글 조회수 증가
 function increaseHitCnt(boardIdx)
   db.exec("UPDATE Board SET hitCnt=hitCnt+1 WHERE boardIdx=?", boardIdx)
@@ -224,20 +223,37 @@ end
 -- 회원 가입 및 관리
 
 --회원 가입
- function createAccount(email, password, auth)
-  db.exec("INSERT INTO boardUser (email, password, auth) VALUES('"
-  .. email .. "', '".. password .. "', '".. auth .. "')")
+ function createAccount(email, password, userName, auth)
+  db.exec("INSERT INTO boardUser (email, password, userName, auth) VALUES('"
+  .. email .. "', '".. password .. "', '".. userName .. "', '".. auth .. "')")
 end
 
 --중복 회원 방지 체크
   function checkAccountEmail(email)
-  db.query("SELECT email FROM boardUser WHERE email=?"email)
+  local rt = {}
+  local rs = db.query("SELECT idx, email, password, userName, auth FROM boardUser WHERE email=?",email)
+
+  while rs:next() do
+    local col1, col2, col3, col4, col5 = rs:get()
+    local item = {
+        idx = col1,
+        email = col2,
+        password = col3,
+        userName = col4,
+        auth = col5
+    }
+    table.insert(rt, item)
+
+  end
+
+  return rt
+
 end
 
 -- 로그인
  function selectAccountLogin(email, password)
-     local rt = {}
-   local rs = db.query("SELECT email, userName, auth FROM boardUser WHERE email = ?, password = ?", email, password)
+   local rt = {}
+   local rs = db.query("SELECT email, userName, auth FROM boardUser WHERE email = ? AND password = ?", email, password)
 
    while rs:next() do
      local col1, col2, col3 = rs:get()
@@ -252,6 +268,7 @@ end
 
    return rt
  end
+
 
 
 

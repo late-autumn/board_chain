@@ -1,9 +1,6 @@
 
 package board.board.repository;
 
-import java.util.List;
-import java.util.Optional;
-
 import org.springframework.data.repository.CrudRepository;
 
 import board.board.entity.AccountEntity;

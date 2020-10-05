@@ -43,10 +43,10 @@ public class AccountEntity {
 	private int id;
 	
 	@Column(nullable=false)
-	private int auth;
+	private String auth;
 	
 	@Column(nullable=false)
-	private String useName;
+	private String userName;
 	
 	@Column(nullable=false)
 	private String email;
