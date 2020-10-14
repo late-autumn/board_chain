@@ -12,11 +12,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
@@ -40,7 +40,7 @@ public class AccountController {
 
 	// 로그인
 	@RequestMapping(value = "/blocko/login", method = RequestMethod.POST)
-	public String login(HttpServletResponse response, HttpServletRequest request) throws Exception {
+	public ResponseEntity<?> login(HttpServletResponse response, HttpServletRequest request) throws Exception {
  		response.setContentType("text/html; charset=UTF-8");
 
 		Map paramMap = request.getParameterMap();
@@ -52,14 +52,28 @@ public class AccountController {
  		ContractResult contractResult = accountService.login(email,password);		 
  
  		if ("\"empty\"".equals(contractResult.toString())|| ("{}".equals(contractResult.toString()))) {
- 			return "redirect:/blocko/login";
+ 			logger.info("공백은 이제 없겠다");
+ 			throw new Exception();
+ 			//return "redirect:/blocko/login";
+ 		}
+ 		else if("\"NOTEMAIL\"".equals(contractResult.toString())) {
+ 			logger.info("이메일 틀렸다");
+ 			throw new Exception();
+ 			//return "redirect:/blocko/login";
+ 		}
+ 		else if("\"NOTPW\"".equals(contractResult.toString())) {
+ 			logger.info("비번 틀렸다");
+ 			throw new Exception();
+ 			//return "redirect:/blocko/login";
  		}
  		else {
  			Gson gson = new Gson();
  			Type type = new TypeToken<List<AccountEntity>>() { 				
  			}.getType();
  			List<AccountEntity> account = gson.fromJson(contractResult.toString(), type);
- 			return "redirect:/blocko/board";
+ 			return ResponseEntity.status(HttpStatus.OK).body(gson.fromJson(contractResult.toString(), type));
+ 			//return "redirect:/blocko/board";
+ 			 
  		}
  
 		 

@@ -39,7 +39,7 @@
 			$("#btn_login").trigger("click");
 	});
 	
-	$("#btn_login").on("click", function() {
+	/* $("#btn_login").on("click", function() {
 		var email = $("input[name='email']").val(), password = $("input[name='password']").val();
 		if (email == "") {
 			alert("사용자이름을 입력하세요");
@@ -49,11 +49,68 @@
 			return false;
 		}
 		$(this).closest("form").submit();
-	});
+	}); */
 	
 	$("#btn_registerForm").on("click", function() {
 		location.href = "/blocko/register";
 	});
+	
+	//////////
+	
+	$(function(){
+		$("#btn_login").click(function(){
+			var email = $("input[name='email']").val(), password = $("input[name='password']").val();
+			if (email == "") {
+				alert("사용자이름을 입력하세요");
+				return false;
+			} else if (password == "") {
+				alert("비밀번호를 입력하세요");
+				return false;
+			}
+			
+			login();
+		})		
+	})
+	
+	/**
+	* 로그인 
+	*/
+	function login(){
+		$.ajax({
+			url:"/blocko/login",
+			type :  "POST",
+			dataType : "text",
+			data : {
+				email : $("input[name='email']").val(),
+				password : $("input[name='password']").val()
+			},
+			//success : function(response){
+				success : function(data){
+/* /* 				if(response.code == "200"){
+					// 정상 처리 된 경우
+					window.location = response.item.url;	//이전페이지로 돌아가기
+				} else {
+					alert(response.message);
+				} */ 
+				console.log(data);
+				debugger
+				if(data==true){
+					alert("data true");
+					
+				}else{
+					alert("패스 워드 틀렸나");
+					return;
+				}
+			},
+			error : function(a,b,c){
+				console.log(a,b,c);
+			}
+			
+		})
+		
+	}
+	
+	
 	
 	
 });

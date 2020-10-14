@@ -1,14 +1,5 @@
 package board.board.common;
   
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 import hera.api.model.Authentication;
 import hera.client.AergoClient;
 import hera.client.AergoClientBuilder;
@@ -33,33 +24,33 @@ public class Common {
     return aergoClient;
   }
 
-  // 키 생성 함수
-  public static AergoKey createAergoKey() {
-    //키생성
-    AergoKey key = new AergoKeyGenerator().create();
+//  // 키 생성 함수
+//  public static AergoKey createAergoKey() {
+//    //키생성
+//    AergoKey key = new AergoKeyGenerator().create();
+//
+//    //생성된 키와 비빌번호를 토대로 privateKey추출, password 부분은 필요한 값으로 수정하여 사용
+//    String encPrivatKey = key.export("password").toString();
+//
+//    System.out.println(">>>>>>>> private encKey :: " + encPrivatKey);
+//    System.out.println(">>>>>>>> Address :: " + key.getAddress());
+//
+//    return key;
+//  }
 
-    //생성된 키와 비빌번호를 토대로 privateKey추출, password 부분은 필요한 값으로 수정하여 사용
-    String encPrivatKey = key.export("password").toString();
-
-    System.out.println(">>>>>>>> private encKey :: " + encPrivatKey);
-    System.out.println(">>>>>>>> Address :: " + key.getAddress());
-
-    return key;
-  }
-
-  // 키 임포트 함수
-  public static AergoKey ImportAergoKey(final String encPrivateKey, final String password) {
-    //키생성
-    AergoKey key = AergoKey.of(encPrivateKey, password);
-
-    //생성된 키와 비빌번호를 토대로 privateKey추출, password 부분은 필요한 값으로 수정하여 사용
-    String encPrivatKey = key.export("password").toString();
-
-    System.out.println(">>>>>>>> private encKey :: " + encPrivatKey);
-    System.out.println(">>>>>>>> Address :: " + key.getAddress());
-
-    return key;
-  }
+//  // 키 임포트 함수
+//  public static AergoKey ImportAergoKey(final String encPrivateKey, final String password) {
+//    //키생성
+//    AergoKey key = AergoKey.of(encPrivateKey, password);
+//
+//    //생성된 키와 비빌번호를 토대로 privateKey추출, password 부분은 필요한 값으로 수정하여 사용
+//    String encPrivatKey = key.export("password").toString();
+//
+//    System.out.println(">>>>>>>> private encKey :: " + encPrivatKey);
+//    System.out.println(">>>>>>>> Address :: " + key.getAddress());
+//
+//    return key;
+//  }
 
   public static WalletApi aergoKeystore(String encPrivateKey, String password,
       AergoClient aergoClient) {

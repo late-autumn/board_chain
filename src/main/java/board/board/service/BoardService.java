@@ -1,12 +1,5 @@
 package board.board.service;
 
-import java.util.List;
-
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-
-import board.board.entity.BoardEntity;
-import board.board.entity.BoardFileEntity;
- 
 public interface BoardService {
 
 //	List<BoardEntity> selectBoardList() throws Exception;

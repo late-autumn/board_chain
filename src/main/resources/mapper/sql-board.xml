@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="board.board.mapper.BoardMapper">
-	<select id="selectBoardList" resultType="board.board.dto.BoardDto">
+	<select id="selectBoardList" resultType="board.board.entity.BoardEntity">
 		<![CDATA[
 			SELECT
 				board_idx,
@@ -17,7 +17,7 @@
 		]]>
 	</select>
 	
-	<insert id="insertBoard" parameterType="board.board.dto.BoardDto" useGeneratedKeys="true" keyProperty="boardIdx">
+	<insert id="insertBoard" parameterType="board.board.entity.BoardEntity" useGeneratedKeys="true" keyProperty="boardIdx">
 		<![CDATA[
 			INSERT INTO t_board
 			(
@@ -36,7 +36,7 @@
 		]]>
 	</insert>
 	
-	<select id="selectBoardDetail" parameterType="int" resultType="board.board.dto.BoardDto">
+	<select id="selectBoardDetail" parameterType="int" resultType="board.board.entity.BoardEntity">
 		<![CDATA[
 			SELECT
 				board_idx,
@@ -64,7 +64,7 @@
 		]]>
 	</update>
 	
-	<update id="updateBoard" parameterType="board.board.dto.BoardDto">
+	<update id="updateBoard" parameterType="board.board.entity.BoardEntity">
 		<![CDATA[
 			UPDATE t_board SET 
 				title = #{title},
@@ -87,7 +87,7 @@
 		]]>
 	</update>
 	
-	<insert id="insertBoardFileList" parameterType="board.board.dto.BoardFileDto">
+	<insert id="insertBoardFileList" parameterType="board.board.entity.BoardFileEntity">
 		<![CDATA[
 			INSERT INTO t_file
 			(
@@ -112,7 +112,7 @@
 		</foreach>
 	</insert>
 	
-	<select id="selectBoardFileList" parameterType="int" resultType="board.board.dto.BoardFileDto">
+	<select id="selectBoardFileList" parameterType="int" resultType="board.board.entity.BoardFileEntity">
 		<![CDATA[
 			SELECT
 				idx,
@@ -127,7 +127,7 @@
 		]]>
 	</select>
 	
-	<select id="selectBoardFileInformation" parameterType="map" resultType="board.board.dto.BoardFileDto">
+	<select id="selectBoardFileInformation" parameterType="map" resultType="board.board.entity.BoardFileEntity">
 		<![CDATA[
 			SELECT
 				original_file_name,

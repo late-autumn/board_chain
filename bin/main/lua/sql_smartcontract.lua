@@ -11,6 +11,9 @@ function constructor()
         createdDatetime datetime
     )]])
 
+--    updated_datetime text,
+--    updater_id text
+
     --게시판 파일 테이블
     db.exec([[create table if not exists BoardFile(
           idx INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -46,15 +49,24 @@ end
 
 
 --게시글 생성
+--function createBoard(title, contents, creatorId, ...)
 function createBoard(title, contents, creatorId, originalFileName, storedFilePath, fileSize)
   db.exec("INSERT INTO Board (title, contents, hitCnt, creatorId, createdDatetime) VALUES('"
   .. title .. "', '".. contents .. "', '0', '".. creatorId .. "', '" .. system.getTimestamp() .. "')")
+
+
 
   local last_insert = 0;
   local rs = db.query("select max(boardIdx) as boardIdx from Board")
   while rs:next() do
     last_insert = rs:get()
   end
+
+--  for i = 1, select('#', ...) do
+--    db.exec("INSERT INTO BoardFile (boardIdx, originalFileName, storedFilePath, fileSize) VALUES('"
+--    .. last_insert .. "', '"
+--    .. select(i, ...) .. "')")
+--  end
 
   db.exec("INSERT INTO BoardFile (boardIdx, originalFileName, storedFilePath, fileSize) VALUES('"
   .. last_insert.."','".. originalFileName .. "','".. storedFilePath .. "','".. fileSize .."')")
@@ -63,7 +75,7 @@ function createBoard(title, contents, creatorId, originalFileName, storedFilePat
 
 end
 
---[[
+
 --게시글 생성_항목이미지 저장
 function createBoardImages(boardIdx, ...)
   local rt = {}
@@ -98,7 +110,6 @@ function updateBoardImages(boardIdx, ...)
   return asd
 end
 
-]]--
 
 
 
@@ -252,11 +263,39 @@ end
 
 -- 로그인
  function selectAccountLogin(email, password)
+   local checkMail  = "";
+   local checkPw = "";
+   local returnStatus = "";
    local rt = {}
-   local rs = db.query("SELECT email, userName, auth FROM boardUser WHERE email = ? AND password = ?", email, password)
+   --local rs = db.query("SELECT email, password FROM boardUser WHERE email = ? AND password = ?", email, password)
+
+   local rs = db.query("SELECT email FROM boardUser WHERE email = ?", email)
+   local rs2 = db.query("SELECT password FROM boardUser WHERE password = ?" , password)
+   local rs3 = db.query("SELECT email, password FROM boardUser WHERE email = ? AND password = ?", email, password)
 
    while rs:next() do
-     local col1, col2, col3 = rs:get()
+     checkMail = rs:get()
+   end
+
+   if checkMail ~= email
+   then
+     returnStatus = 'NOTEMAIL'
+     return returnStatus
+   end
+
+   while rs2:next() do
+    checkPw = rs2:get()
+  end
+
+  if checkPw ~= password
+  then
+    returnStatus = 'NOTPW'
+    return returnStatus
+  end
+
+
+   while rs3:next() do
+     local col1, col2, col3 = rs3:get()
      local item = {
          email = col1,
          userName = col2,
@@ -265,6 +304,7 @@ end
      table.insert(rt, item)
 
    end
+
 
    return rt
  end

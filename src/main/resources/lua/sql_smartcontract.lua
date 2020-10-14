@@ -11,6 +11,9 @@ function constructor()
         createdDatetime datetime
     )]])
 
+--    updated_datetime text,
+--    updater_id text
+
     --게시판 파일 테이블
     db.exec([[create table if not exists BoardFile(
           idx INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -63,7 +66,7 @@ function createBoard(title, contents, creatorId, originalFileName, storedFilePat
 
 end
 
---[[
+
 --게시글 생성_항목이미지 저장
 function createBoardImages(boardIdx, ...)
   local rt = {}
@@ -98,7 +101,6 @@ function updateBoardImages(boardIdx, ...)
   return asd
 end
 
-]]--
 
 
 
@@ -252,11 +254,39 @@ end
 
 -- 로그인
  function selectAccountLogin(email, password)
+   local checkMail  = "";
+   local checkPw = "";
+   local returnStatus = "";
    local rt = {}
-   local rs = db.query("SELECT email, userName, auth FROM boardUser WHERE email = ? AND password = ?", email, password)
+   --local rs = db.query("SELECT email, password FROM boardUser WHERE email = ? AND password = ?", email, password)
+
+   local rs = db.query("SELECT email FROM boardUser WHERE email = ?", email)
+   local rs2 = db.query("SELECT password FROM boardUser WHERE password = ?" , password)
+   local rs3 = db.query("SELECT email, password FROM boardUser WHERE email = ? AND password = ?", email, password)
 
    while rs:next() do
-     local col1, col2, col3 = rs:get()
+     checkMail = rs:get()
+   end
+
+   if checkMail ~= email
+   then
+     returnStatus = 'NOTEMAIL'
+     return returnStatus
+   end
+
+   while rs2:next() do
+    checkPw = rs2:get()
+  end
+
+  if checkPw ~= password
+  then
+    returnStatus = 'NOTPW'
+    return returnStatus
+  end
+
+
+   while rs3:next() do
+     local col1, col2, col3 = rs3:get()
      local item = {
          email = col1,
          userName = col2,
@@ -266,9 +296,9 @@ end
 
    end
 
+
    return rt
  end
-
 
 
 

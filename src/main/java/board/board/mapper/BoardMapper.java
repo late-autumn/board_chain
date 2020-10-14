@@ -6,26 +6,26 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import board.board.dto.BoardDto;
-import board.board.dto.BoardFileDto;
+import board.board.entity.BoardEntity;
+import board.board.entity.BoardFileEntity;
 
 @Mapper
 public interface BoardMapper {
-	List<BoardDto> selectBoardList() throws Exception;
+	List<BoardEntity> selectBoardList() throws Exception;
 	
-	void insertBoard(BoardDto board) throws Exception;
+	void insertBoard(BoardEntity board) throws Exception;
 
-	BoardDto selectBoardDetail(int boardIdx) throws Exception;
+	BoardEntity selectBoardDetail(int boardIdx) throws Exception;
 
 	void updateHitCount(int boardIdx) throws Exception;
 	
-	void updateBoard(BoardDto board) throws Exception;
+	void updateBoard(BoardEntity board) throws Exception;
 	
 	void deleteBoard(int boardIdx) throws Exception;
 
-	void insertBoardFileList(List<BoardFileDto> list) throws Exception;
+	void insertBoardFileList(List<BoardFileEntity> list) throws Exception;
 
-	List<BoardFileDto> selectBoardFileList(int boardIdx) throws Exception;
+	List<BoardFileEntity> selectBoardFileList(int boardIdx) throws Exception;
 
-	BoardFileDto selectBoardFileInformation(@Param("idx") int idx, @Param("boardIdx" )int boardIdx);
+	BoardFileEntity selectBoardFileInformation(@Param("idx") int idx, @Param("boardIdx" )int boardIdx);
 }

@@ -6,22 +6,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import board.board.common.Common;
-import board.board.entity.BoardEntity;
-import board.board.entity.BoardFileEntity;
-import board.board.repository.BoardRepository;
 import board.board.smartcontract.SmartContract;
 import board.common.FileUtils;
 import hera.api.model.ContractResult;
